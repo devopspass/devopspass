@@ -53,7 +53,8 @@ jobs:
     - name: Install Linux dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y wine64 wine32
+        sudo apt-get install -y wine64
+        sudo dpkg --add-architecture i386 && apt-get update && apt-get install wine32
 
     - name: Install Dependencies
       run: cd devops-pass-ai && npm install
