@@ -24,7 +24,7 @@ jobs:
         node-version: [20]
 
     # The type of runner that the job will run on
-    runs-on: windows-2022
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Pull
@@ -50,10 +50,10 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    # - name: Install linux dependencies
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+    - name: Install linux dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wine
 
     - name: Install Dependencies
       run: cd devops-pass-ai && npm install
