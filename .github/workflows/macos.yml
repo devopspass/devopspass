@@ -59,7 +59,7 @@ jobs:
       run: cd devops-pass-ai && npm install
 
     - name: Build the app
-      run: cd devops-pass-ai && npm run electron:build:win
+      run: cd devops-pass-ai && npm run electron:build:mac
 
     - name: Release
       uses: softprops/action-gh-release@v2
