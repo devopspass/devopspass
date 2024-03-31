@@ -67,4 +67,4 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          devops-pass-ai/release/*.zip
+          devops-pass-ai/release/*.exe
