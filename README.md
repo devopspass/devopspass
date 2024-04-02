@@ -16,13 +16,14 @@
 <br />
 
 
-Demo / Videos
-=============
-
-[![DevOps Pass AI](https://img.youtube.com/vi/FdZdQPT6TOY/0.jpg)](https://youtu.be/FdZdQPT6TOY)
-
-
 Installation
 ============
 
 Download latest release binary from [Release page](https://github.com/devopspass/devopspass/releases) and start using.
+Demo / Videos
+=============
+
+[![DevOps Pass AI](https://img.youtube.com/vi/FdZdQPT6TOY/0.jpg)](https://youtu.be/FdZdQPT6TOY)
+[![Kubernetes Army Swiss Knife](https://img.youtube.com/vi/fRGozFnP-Yk/0.jpg)](https://youtu.be/fRGozFnP-Yk)
+
+
