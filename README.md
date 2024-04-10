@@ -26,9 +26,9 @@
 [![Kubernetes Integration](https://raw.githubusercontent.com/devopspass/devopspass/main/images/screen1.png)](https://github.com/devopspass/devopspass/releases)
 
 
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#why-devops-pass-ai)
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#-why-devops-pass-ai)
 
-## ➤ Why DevOps Pass AI?
+## ➤ ⭐️ Why DevOps Pass AI?
 
 We're reintroducing the timeless KISS principle in DevOps.
 We're trying to make as simple as possible:
@@ -38,9 +38,9 @@ We're trying to make as simple as possible:
 * **Tools adoption** - "One-click-getting-started" principle, dont bother engineers with reading "Getting started ..." documentation, allow them click a few buttons and proceed with business necessary tasks
 
 
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#features)
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#-features)
 
-## ➤ Features
+## ➤ ✨ Features
 
 * Install various DevOps tools on your local in a few clicks - Docker, VSCode, kubectl, Helm and anything you'll need
 * Manage DevOps related entities from simple UI, like Docker images, Helm charts, AWS profiles, Kubernetes contexts and namespaces, etc.
