@@ -3,9 +3,10 @@
 </p>
 <p align="center">
 		<a href="https://github.com/devopspass/devopspass"><img alt="Release" src="https://img.shields.io/github/release/devopspass/devopspass.svg" height="20"/></a>
-<a href="https://github.com/devopspass/devopspass"><img alt="Build Linux" src="https://github.com/devopspass/devopspass/actions/workflows/linux.yml/badge.svg" height="20"/></a>
-<a href="https://github.com/devopspass/devopspass"><img alt="Build Windows" src="https://github.com/devopspass/devopspass/actions/workflows/windows.yml/badge.svg" height="20"/></a>
-<a href="https://github.com/devopspass/devopspass"><img alt="Build MacOS" src="https://github.com/devopspass/devopspass/actions/workflows/macos.yml/badge.svg" height="20"/></a>
+<a href="https://dev.to/devopspass"><img alt="dev.to" src="https://img.shields.io/badge/dev.to-0A0A0A?style=for-the-badge&logo=devdotto&logoColor=white" height="20"/></a>
+<a href="https://www.linkedin.com/company/devopspass-ai"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="20"/></a>
+<a href="https://www.youtube.com/@DevOpsPassAI"><img alt="YouTube" src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" height="20"/></a>
+<a href="https://twitter.com/devops_pass_ai"><img alt="Twitter" src="https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white" height="20"/></a>
 	</p>
 
 <p align="center">
@@ -17,42 +18,29 @@
 
 
 
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#-why-devops-pass-ai)
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#screenshots)
 
-## ➤ ⭐️ Why DevOps Pass AI?
+## ➤ Screenshots
 
-* DevOps Tools inventory
-* Simplified onboarding of tools
-* One-click "Getting started"
+[![Kubernetes Integration](https://raw.githubusercontent.com/devopspass/devopspass/main/images/screen1.png)](https://github.com/devopspass/devopspass/releases)
 
-
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#-features)
-
-## ➤ ✨ Features
-
-* Install DevOps tools in one click
-* Use integration to most common tools from single UI (AWS, Kubernetes, Docker, Jenkins, etc.)
-* Do one-click login for apps which doesn't support SSO
+[![Helm Integration](https://raw.githubusercontent.com/devopspass/devopspass/main/images/screen2.png)](https://github.com/devopspass/devopspass/releases)
 
 
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#-quick-start)
-
-## ➤ 🚀 Quick Start
 
 
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#-installation)
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#installation)
 
-## ➤ 📦 Installation
+## ➤ Installation
 
 Download latest release binary from [Release page](https://github.com/devopspass/devopspass/releases) and start using.
 
 
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#videos)
 
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#-demo--videos)
+## ➤ Videos
 
-## ➤ 🎬 Demo / Videos
-
-[![DevOps Pass AI](https://img.youtube.com/vi/FdZdQPT6TOY/0.jpg)](https://youtu.be/FdZdQPT6TOY)
 [![Kubernetes Army Swiss Knife](https://img.youtube.com/vi/fRGozFnP-Yk/0.jpg)](https://youtu.be/fRGozFnP-Yk)
 
+[![Docker and Docker Compose Integrations](https://img.youtube.com/vi/NCzJixmzoK8/0.jpg)](https://www.youtube.com/watch?v=NCzJixmzoK8)
 
