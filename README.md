@@ -3,6 +3,7 @@
 </p>
 <p align="center">
 		<a href="https://github.com/devopspass/devopspass"><img alt="Release" src="https://img.shields.io/github/release/devopspass/devopspass.svg" height="20"/></a>
+<a href="https://medium.com/@devopspass/"><img alt="Medium" src="https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white" height="20"/></a>
 <a href="https://dev.to/devopspass"><img alt="dev.to" src="https://img.shields.io/badge/dev.to-0A0A0A?style=for-the-badge&logo=devdotto&logoColor=white" height="20"/></a>
 <a href="https://www.linkedin.com/company/devopspass-ai"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="20"/></a>
 <a href="https://www.youtube.com/@DevOpsPassAI"><img alt="YouTube" src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" height="20"/></a>
@@ -23,8 +24,6 @@
 ## ➤ Screenshots
 
 [![Kubernetes Integration](https://raw.githubusercontent.com/devopspass/devopspass/main/images/screen1.png)](https://github.com/devopspass/devopspass/releases)
-
-[![Helm Integration](https://raw.githubusercontent.com/devopspass/devopspass/main/images/screen2.png)](https://github.com/devopspass/devopspass/releases)
 
 
 
