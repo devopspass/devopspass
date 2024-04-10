@@ -3,6 +3,7 @@
 </p>
 <p align="center">
 		<a href="https://github.com/devopspass/devopspass"><img alt="Release" src="https://img.shields.io/github/release/devopspass/devopspass.svg" height="20"/></a>
+<a href=""><img alt="Downloads" src="https://img.shields.io/github/downloads/devopspass/devopspass/total" height="20"/></a>
 <a href="https://medium.com/@devopspass/"><img alt="Medium" src="https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white" height="20"/></a>
 <a href="https://dev.to/devopspass"><img alt="dev.to" src="https://img.shields.io/badge/dev.to-0A0A0A?style=for-the-badge&logo=devdotto&logoColor=white" height="20"/></a>
 <a href="https://www.linkedin.com/company/devopspass-ai"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="20"/></a>
