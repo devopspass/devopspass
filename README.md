@@ -31,11 +31,11 @@
 
 ## ⭐️ Why DevOps Pass AI?
 
-We're reintroducing the timeless KISS principle in DevOps.
-We're trying to make as simple as possible:
+We're reintroducing the timeless Unix (originally US Navy) principle called KISS ([Keep It Simple, Stupid!](https://en.wikipedia.org/wiki/KISS_principle)), but in DevOps area.
+We're trying to make some things as simple as possible:
 
 * **Tools inventory** - keep links to all DevOps tools by hand
-* **Tools onboarding** - install all necessary tools from UI in a few clicks, keep onboarding instructions links together with apps 
+* **Tools onboarding** - install all necessary tools from UI in a few clicks, keep onboarding instructions links together with apps
 * **Tools adoption** - "One-click-getting-started" principle, dont bother engineers with reading "Getting started ..." documentation, allow them click a few buttons and proceed with business necessary tasks
 
 
@@ -65,4 +65,6 @@ Download latest release binary from [Release page](https://github.com/devopspass
 [![Kubernetes Army Swiss Knife](https://img.youtube.com/vi/fRGozFnP-Yk/0.jpg)](https://youtu.be/fRGozFnP-Yk)
 
 [![Docker and Docker Compose Integrations](https://img.youtube.com/vi/NCzJixmzoK8/0.jpg)](https://www.youtube.com/watch?v=NCzJixmzoK8)
+
+[![Docker and Docker Compose Integrations](https://img.youtube.com/vi/8U8c2R3WeTA/0.jpg)](https://www.youtube.com/watch?v=8U8c2R3WeTA)
 
