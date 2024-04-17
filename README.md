@@ -20,6 +20,15 @@
 
 
 
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-join-community)
+
+## 💬 Join community
+
+Join our Slack community, ask questions, contribute, get help!
+
+[<img src="https://cloudberrydb.org/assets/images/slack_button-7610f9c51d82009ad912aded124c2d88.svg" width="150">](https://join.slack.com/t/devops-pass-ai/shared_invite/zt-2gyn62v9f-5ORKktUINe43qJx7HtKFcw)
+
+
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-screenshots)
 
 ## 📸 Screenshots
