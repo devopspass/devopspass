@@ -59,6 +59,14 @@ We're trying to make some things as simple as possible:
 * No registration required, just enter your email
 
 
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-extending-devops-pass-ai)
+
+## 🔌 Extending DevOps Pass AI
+
+If you did not found functionality neccessary for your case, you can create plugins for DOP!
+
+Please check [plugins repo](https://github.com/devopspass/plugins) and [Architecture documentration](https://github.com/devopspass/plugins/blob/main/ARHITECTURE.md).
+
 
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-installation)
 
