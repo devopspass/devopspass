@@ -12,7 +12,7 @@
 	</p>
 
 <p align="center">
-  <b>DevOps Pass AI - Keep DevOps Simple Stupid</b></br>
+  <b>Do not learn DevOps Tools, play with them!</b></br>
   <sub>Make DevOps-related activities one-click simple, without additional reading and searching.<sub>
 </p>
 
