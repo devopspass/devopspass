@@ -30,6 +30,15 @@ jobs:
       env:
         TOKEN: "${{secrets.TOKEN}}"
 
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'temurin'
+
+    - name: Download Jsign
+      run: wget https://github.com/ebourg/jsign/releases/download/6.0/jsign-6.0.jar -O /tmp/jsign.jar
+
     - name: Cache node modules
       uses: actions/cache@v3
       env:
@@ -59,6 +68,13 @@ jobs:
 
     - name: Build the app
       run: cd devops-pass-ai && npm run electron:build:win
+
+    - name: Save PEM
+      run: echo "${{ secrets.CODESIGN_PEM }}" | base64 -d > /tmp/full-chain.pem
+
+    - name: Sign
+      run: >
+        java -jar /tmp/jsign.jar --storetype GOOGLECLOUD --keystore projects/devops-pass-ai/locations/europe-west1/keyRings/jsign --storepass "${{ secrets.GCP_ACCESS_TOKEN }}" --alias RTFM/cryptoKeyVersions/1 --certfile /tmp/full-chain.pem "$(ls -1 ${{ github.workspace }}/devops-pass-ai/release/devops-pass-ai*.exe)"
 
     - name: Release
       uses: softprops/action-gh-release@v2
