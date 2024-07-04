@@ -69,15 +69,12 @@ jobs:
     - name: Build the app
       run: cd devops-pass-ai && npm run electron:build:win
 
+    - name: Save PEM
+      run: echo "${{ secrets.CODESIGN_PEM }}" | base64 -d > /tmp/full-chain.pem
+
     - name: Sign
       run: >
-        echo "${{ secrets.CODESIGN_PEM }}" | base64 -d > /tmp/full-chain.pem
-        java -jar /tmp/jsign.jar --storetype GOOGLECLOUD
-                                --keystore projects/devops-pass-ai/locations/europe-west1/keyRings/jsign
-                                --storepass "${{ secrets.GCP_ACCESS_TOKEN }}"
-                                --alias RTFM/cryptoKeyVersions/1
-                                --certfile /tmp/full-chain.pem
-                                devops-pass-ai/release/*.exe
+        java -jar /tmp/jsign.jar --storetype GOOGLECLOUD --keystore projects/devops-pass-ai/locations/europe-west1/keyRings/jsign --storepass "${{ secrets.GCP_ACCESS_TOKEN }}" --alias RTFM/cryptoKeyVersions/1 --certfile /tmp/full-chain.pem "$(ls -1 ${{ github.workspace }}/devops-pass-ai/release/devops-pass-ai*.exe)"
 
     - name: Release
       uses: softprops/action-gh-release@v2
