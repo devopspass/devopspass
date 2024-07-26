@@ -12,7 +12,7 @@
 	</p>
 
 <p align="center">
-  <b>Do not learn DevOps Tools, play with them!</b></br>
+  <b>Interract with your entire DevOps Platform from a single place</b></br>
   <sub>Make DevOps-related activities one-click simple, without additional reading and searching.<sub>
 </p>
 
@@ -57,6 +57,7 @@ We're trying to make some things as simple as possible:
 * Extend it based on your need, plugins are open source - https://github.com/devopspass/plugins/
 * Make your organization/team DevOps toools and configuration available for everyone, right after login
 * No registration required, just enter your email
+* Not a SaaS, everything running on your local
 
 
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-extending-devops-pass-ai)
