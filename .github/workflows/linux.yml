@@ -54,6 +54,16 @@ jobs:
     - name: Install Dependencies
       run: cd devops-pass-ai && npm install
 
+    - name: Build Conda bundle
+      run: |
+        cd devops-pass-ai/src/assets/codex/
+        # Download micromamba
+        curl -L https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+        # Create conda env from codex.yml in folder conda-bundle/
+        ./bin/micromamba create -f codex.yml -p conda-bundle --yes
+        # Tar it with version in name
+        tar -cvzf conda-bundle-${{ github.run_number }}.tar.gz conda-bundle/
+
     - name: Build the app
       run: cd devops-pass-ai && npm run electron:build:lin
     - name: Release
@@ -62,3 +72,4 @@ jobs:
       with:
         files: |
           devops-pass-ai/release/*.AppImage
+          devops-pass-ai/src/assets/codex/conda-bundle-${{ github.run_number }}.tar.gz
