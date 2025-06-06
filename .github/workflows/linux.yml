@@ -62,7 +62,7 @@ jobs:
         # Create conda env from codex.yml in folder conda-bundle/
         ./bin/micromamba env create -c conda-forge -f codex.yml -p ./conda-bundle/ --yes
         # Tar it with version in name
-        tar -cvzf conda-bundle-${{ github.run_number }}.tar.gz conda-bundle/
+        tar -czf conda-bundle-${{ github.run_number }}.tar.gz conda-bundle/
 
     - name: Build the app
       run: cd devops-pass-ai && npm run electron:build:lin
