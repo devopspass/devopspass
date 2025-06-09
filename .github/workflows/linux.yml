@@ -26,7 +26,6 @@ jobs:
     - name: Pull
       run: |
         git clone "https://x-token-auth:$TOKEN@bitbucket.org/stalker_by/devops-pass-ai.git"
-        cd devops-pass-ai && git checkout lint_fixes && rm -Rf release/ && rm -Rf src/assets/codex/conda-bundle/ && rm -Rf src/assets/codex/conda-bundle-*.tar.gz
       env:
         TOKEN: "${{secrets.TOKEN}}"
 
@@ -60,20 +59,9 @@ jobs:
     - name: Build the app
       run: cd devops-pass-ai && npm run electron:build:lin
 
-    - name: Build Conda bundle
-      run: |
-        cd devops-pass-ai/src/assets/codex/
-        # Download micromamba
-        curl -L https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-        # Create conda env from codex.yml in folder conda-bundle/
-        ./bin/micromamba env create -c conda-forge -f codex.yml -p ./conda-bundle/ --yes
-        # Tar it with version in name
-        tar -czf conda-bundle-${{ github.run_number }}.tar.gz conda-bundle/
-
     - name: Release
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
           devops-pass-ai/release/*.AppImage
-          devops-pass-ai/src/assets/codex/conda-bundle-${{ github.run_number }}.tar.gz
