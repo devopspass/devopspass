@@ -56,6 +56,10 @@ jobs:
     - name: Install Dependencies
       run: cd devops-pass-ai && npm install
 
+
+    - name: Build the app
+      run: cd devops-pass-ai && npm run electron:build:lin
+
     - name: Build Conda bundle
       run: |
         cd devops-pass-ai/src/assets/codex/
@@ -66,8 +70,6 @@ jobs:
         # Tar it with version in name
         tar -czf conda-bundle-${{ github.run_number }}.tar.gz conda-bundle/
 
-    - name: Build the app
-      run: cd devops-pass-ai && npm run electron:build:lin
     - name: Release
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
