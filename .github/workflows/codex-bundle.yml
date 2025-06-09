@@ -27,12 +27,22 @@ jobs:
       fail-fast: false
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout Repository (macOS/Linux)
+      if: matrix.config.os != 'windows-2022'
       run: |
         git clone "https://x-token-auth:${{ secrets.TOKEN }}@bitbucket.org/stalker_by/devops-pass-ai.git"
         cd devops-pass-ai
         git checkout lint_fixes
-        rm -Rf src/assets/codex/codex-bundle/ src/assets/codex/codex-bundle-*.tar.gz src/assets/codex/codex-bundle-*.zip
+        rm -rf src/assets/codex/codex-bundle/ src/assets/codex/codex-bundle-*.tar.gz src/assets/codex/codex-bundle-*.zip
+
+    - name: Checkout Repository (Windows)
+      if: matrix.config.os == 'windows-2022'
+      shell: pwsh
+      run: |
+        git clone "https://x-token-auth:${{ secrets.TOKEN }}@bitbucket.org/stalker_by/devops-pass-ai.git"
+        cd devops-pass-ai
+        git checkout lint_fixes
+        Remove-Item -Path src/assets/codex/codex-bundle/,src/assets/codex/codex-bundle-*.tar.gz,src/assets/codex/codex-bundle-*.zip -Recurse -Force -ErrorAction SilentlyContinue
 
     - name: Cache Micromamba
       uses: actions/cache@v3
