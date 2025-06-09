@@ -24,7 +24,9 @@ jobs:
 
     steps:
     - name: Pull
-      run: git clone "https://x-token-auth:$TOKEN@bitbucket.org/stalker_by/devops-pass-ai.git"
+      run: |
+        git clone "https://x-token-auth:$TOKEN@bitbucket.org/stalker_by/devops-pass-ai.git"
+        git checkout lint_fixes
       env:
         TOKEN: "${{secrets.TOKEN}}"
 
