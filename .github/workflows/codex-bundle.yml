@@ -19,10 +19,10 @@ jobs:
             CONDA_OVERRIDE_WIN: "10"
           - arch: x86_64
             micromamba-platform: osx-64
-            CONDA_OVERRIDE_OSX: "15.1"
+            CONDA_OVERRIDE_OSX: "10.13"
           - arch: x86_64
             micromamba-platform: osx-arm64
-            CONDA_OVERRIDE_OSX: "15.1"
+            CONDA_OVERRIDE_OSX: "10.13"
       fail-fast: false
 
     steps:
