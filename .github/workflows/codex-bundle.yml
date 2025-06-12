@@ -42,13 +42,13 @@ jobs:
       run: |
         cd devops-pass-ai/src/assets/codex/
         # Download micromamba
-        curl -L https://micro.mamba.pm/api/micromamba/${{ matrix.config.micromamba-platform }}/latest | tar -xvj bin/micromamba
+        curl -L https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
         # Create conda env
-        ./bin/micromamba env create -c conda-forge -f codex.yml -p ./codex-bundle-${{ matrix.config.arch }}/ --platform=${{ matrix.config.micromamba-platform }} --yes
+        ./bin/micromamba env create -c conda-forge -f codex.yml -p ./codex-bundle-${{ matrix.config.micromamba-platform }}/ --platform=${{ matrix.config.micromamba-platform }} --yes
         # Clean up
         ./bin/micromamba clean --all --yes
         # Tar the bundle
-        tar -czf codex-bundle-${{ matrix.config.micromamba-platform }}-${{ github.sha }}.tar.gz codex-bundle-${{ matrix.config.arch }}/
+        tar -czf codex-bundle-${{ matrix.config.micromamba-platform }}-${{ github.sha }}.tar.gz codex-bundle-${{ matrix.config.micromamba-platform }}/
 
     - name: Upload Conda Artifacts
       uses: actions/upload-artifact@v4
