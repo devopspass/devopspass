@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-conda:
-    runs-on: ${{ matrix.config.os }}
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         config:
