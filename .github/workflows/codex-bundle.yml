@@ -16,17 +16,20 @@ jobs:
             micromamba-platform: linux-64
           - arch: x86_64
             micromamba-platform: win-64
-            CONDA_OVERRIDE_WIN: "1"
+            CONDA_OVERRIDE_WIN: "10"
           - arch: x86_64
             micromamba-platform: osx-64
-            CONDA_OVERRIDE_OSX: "1"
+            CONDA_OVERRIDE_OSX: "15.1"
           - arch: x86_64
             micromamba-platform: osx-arm64
-            CONDA_OVERRIDE_OSX: "1"
+            CONDA_OVERRIDE_OSX: "15.1"
       fail-fast: false
 
     steps:
     - name: Checkout Repository
+      env:
+        CONDA_OVERRIDE_WIN: ${{ matrix.config.CONDA_OVERRIDE_WIN }}
+        CONDA_OVERRIDE_OSX: ${{ matrix.config.CONDA_OVERRIDE_OSX }}
       run: |
         git clone "https://x-token-auth:${{ secrets.TOKEN }}@bitbucket.org/stalker_by/devops-pass-ai.git"
         cd devops-pass-ai
