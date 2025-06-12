@@ -49,8 +49,8 @@ jobs:
         cd devops-pass-ai/src/assets/codex/
         # Download micromamba
         curl -L https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-        if [[ "$CONDA_OVERRIDE_OSX" == "10.13" ]]; then
-          sed -i 's|ansible=9.1.0|ansible=9.2.0|g' codex.yml
+        if [[ "$CONDA_OVERRIDE_WIN" != "" ]]; then
+          sed -i 's|- ansible=9.2.0||g' codex.yml
         fi
         # Create conda env
         ./bin/micromamba env create -c conda-forge -f codex.yml -p ./codex-bundle-${{ matrix.config.micromamba-platform }}/ --platform=${{ matrix.config.micromamba-platform }} --yes
