@@ -12,37 +12,23 @@ jobs:
     strategy:
       matrix:
         config:
-          - os: macos-14
-            arch: x86_64
-            micromamba-platform: osx-64
-          - os: macos-14-arm64
-            arch: arm64
-            micromamba-platform: osx-arm64
-          - os: ubuntu-22.04
-            arch: x86_64
+          - arch: x86_64
             micromamba-platform: linux-64
-          - os: windows-2022
-            arch: x86_64
+          - arch: x86_64
             micromamba-platform: win-64
+          - arch: x86_64
+            micromamba-platform: osx-64
+          - arch: x86_64
+            micromamba-platform: osx-arm64
       fail-fast: false
 
     steps:
-    - name: Checkout Repository (macOS/Linux)
-      if: matrix.config.os != 'windows-2022'
+    - name: Checkout Repository
       run: |
         git clone "https://x-token-auth:${{ secrets.TOKEN }}@bitbucket.org/stalker_by/devops-pass-ai.git"
         cd devops-pass-ai
         git checkout lint_fixes
         rm -rf src/assets/codex/codex-bundle/ src/assets/codex/codex-bundle-*.tar.gz src/assets/codex/codex-bundle-*.zip
-
-    - name: Checkout Repository (Windows)
-      if: matrix.config.os == 'windows-2022'
-      shell: pwsh
-      run: |
-        git clone "https://x-token-auth:${{ secrets.TOKEN }}@bitbucket.org/stalker_by/devops-pass-ai.git"
-        cd devops-pass-ai
-        git checkout lint_fixes
-        Remove-Item -Path src/assets/codex/codex-bundle/,src/assets/codex/codex-bundle-*.tar.gz,src/assets/codex/codex-bundle-*.zip -Recurse -Force -ErrorAction SilentlyContinue
 
     - name: Cache Micromamba
       uses: actions/cache@v3
@@ -52,8 +38,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-micromamba-${{ matrix.config.arch }}-
 
-    - name: Build Conda Bundle (macOS/Linux)
-      if: matrix.config.os != 'windows-2022'
+    - name: Build Conda Bundle
       run: |
         cd devops-pass-ai/src/assets/codex/
         # Download micromamba
@@ -65,28 +50,12 @@ jobs:
         # Tar the bundle
         tar -czf codex-bundle-${{ matrix.config.micromamba-platform }}-${{ github.sha }}.tar.gz codex-bundle-${{ matrix.config.arch }}/
 
-    - name: Build Conda Bundle (Windows)
-      if: matrix.config.os == 'windows-2022'
-      shell: pwsh
-      run: |
-        cd devops-pass-ai/src/assets/codex/
-        # Download micromamba
-        Invoke-WebRequest -Uri https://micro.mamba.pm/api/micromamba/${{ matrix.config.micromamba-platform }}/latest -OutFile micromamba.tar.bz2
-        tar -xjf micromamba.tar.bz2
-        # Create conda env
-        .\bin\micromamba.exe env create -c conda-forge -f codex.yml -p .\codex-bundle-${{ matrix.config.arch }}\ --platform=${{ matrix.config.micromamba-platform }} --yes
-        # Clean up
-        .\bin\micromamba.exe clean --all --yes
-        # Create zip archive
-        Compress-Archive -Path .\codex-bundle-${{ matrix.config.arch }}\ -DestinationPath codex-bundle-${{ matrix.config.micromamba-platform }}-${{ github.sha }}.zip
-
     - name: Upload Conda Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: conda-artifacts-${{ matrix.config.micromamba-platform }}
         path: |
           devops-pass-ai/src/assets/codex/codex-bundle-${{ matrix.config.micromamba-platform }}-${{ github.sha }}.tar.gz
-          devops-pass-ai/src/assets/codex/codex-bundle-${{ matrix.config.micromamba-platform }}-${{ github.sha }}.zip
         retention-days: 1
 
   release:
