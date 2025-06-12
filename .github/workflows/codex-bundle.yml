@@ -27,9 +27,6 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      env:
-        CONDA_OVERRIDE_WIN: ${{ matrix.config.CONDA_OVERRIDE_WIN }}
-        CONDA_OVERRIDE_OSX: ${{ matrix.config.CONDA_OVERRIDE_OSX }}
       run: |
         git clone "https://x-token-auth:${{ secrets.TOKEN }}@bitbucket.org/stalker_by/devops-pass-ai.git"
         cd devops-pass-ai
@@ -45,6 +42,9 @@ jobs:
           ${{ runner.os }}-micromamba-${{ matrix.config.arch }}-
 
     - name: Build Conda Bundle
+      env:
+        CONDA_OVERRIDE_WIN: ${{ matrix.config.CONDA_OVERRIDE_WIN }}
+        CONDA_OVERRIDE_OSX: ${{ matrix.config.CONDA_OVERRIDE_OSX }}
       run: |
         cd devops-pass-ai/src/assets/codex/
         # Download micromamba
