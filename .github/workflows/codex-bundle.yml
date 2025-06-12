@@ -85,7 +85,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          artifacts/conda-artifacts-osx-64/codex-bundle-osx-64-*.tar.gz
-          artifacts/conda-artifacts-osx-arm64/codex-bundle-osx-arm64-*.tar.gz
-          artifacts/conda-artifacts-linux-64/codex-bundle-linux-64-*.tar.gz
-          artifacts/conda-artifacts-win-64/codex-bundle-win-64-*.zip
+          artifacts/conda-artifacts-osx-64/*.tar.gz
+          artifacts/conda-artifacts-osx-arm64/*.tar.gz
+          artifacts/conda-artifacts-linux-64/*.tar.gz
+          artifacts/conda-artifacts-win-64/*.tar.gz
