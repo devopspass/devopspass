@@ -16,10 +16,13 @@ jobs:
             micromamba-platform: linux-64
           - arch: x86_64
             micromamba-platform: win-64
+            CONDA_OVERRIDE_WIN: "1"
           - arch: x86_64
             micromamba-platform: osx-64
+            CONDA_OVERRIDE_OSX: "1"
           - arch: x86_64
             micromamba-platform: osx-arm64
+            CONDA_OVERRIDE_OSX: "1"
       fail-fast: false
 
     steps:
