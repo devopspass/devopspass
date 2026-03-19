@@ -1,0 +1,82 @@
+name: GitHub
+description: Code hosting and collaboration platform integration for GitHub.
+icon: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+category: git
+check_script: github/docs/check.py
+doc_types:
+  - github_repos:
+    title: GitHub repos
+    filter_field: name
+    source: github/docs/github_repos.py
+    icon: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+    actions_view_type: buttons
+    cache_ok: true
+    hidden_fields:
+      - ssh_url_to_repo
+      - clone_url
+      - default_branch
+      - visibility
+      - full_name
+    get_locally: github/docs/get_github_repo.py
+    actions:
+      github_clone_repo:
+        title: Clone
+        icon: fas fa-folder-plus
+        source: git/actions/clone_git.py
+      open_in_editor:
+        title: Open in IDE
+        icon: fas fa-code
+        source: git/actions/open_in_editor.py
+      devops_summary:
+        title: DevOps Summary
+        icon: fas fa-star
+        source: _common/actions/gather_devops_info.py
+settings:
+  github.server:
+    title: GitHub Server URL
+    description: Base web URL, e.g. `https://github.com` or your Enterprise web URL
+    type: string
+    default: https://github.com
+
+  github.api_url:
+    title: GitHub API URL
+    description: API base URL, e.g. `https://api.github.com` or Enterprise API URL
+    type: string
+    default: https://api.github.com
+
+  github.token:
+    title: GitHub Token
+    description: Personal Access Token (classic or fine-grained)
+    type: secret
+    mandatory: true
+
+  github.orgs:
+    title: GitHub Organizations
+    description: Comma-separated list of organizations; if empty, list only repositories owned by authenticated user
+    type: string
+
+  github.clone_source:
+    title: Clone Source
+    description: Choose between SSH or HTTPS for cloning repositories
+    type: dropdown
+    default: ssh
+    options:
+      - ssh
+      - https
+
+agents:
+  - name: github-researcher
+    description: DevOps Assistant agent to work with GitHub related requests on {github.server}.
+    prompt: |
+      You're DevOps assistant agent which is helping user to work with GitHub related requests.
+      Use that agent only if user asking to search in GitHub.
+    mcp-servers:
+      github:
+        type: local
+        command: npx
+        args: ["-y", "@modelcontextprotocol/server-github"]
+        env:
+          GITHUB_PERSONAL_ACCESS_TOKEN: "{github.token}"
+          GITHUB_API_URL: "{github.api_url}"
+          GITHUB_HOST: "{github.server}"
+          GITHUB_READ_ONLY_MODE: "true"

@@ -1,0 +1,24 @@
+<main class="auth-page">
+  <section class="auth-card">
+    <h1>Completing sign-in</h1>
+    <p class="muted" *ngIf="loading">Verifying your email login link...</p>
+
+    <form class="auth-form" *ngIf="needEmailConfirmation && !loading" (ngSubmit)="confirmEmailAndComplete()">
+      <p class="muted">Confirm the same email you used on the login page.</p>
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        [(ngModel)]="email"
+        type="email"
+        placeholder="you@company.com"
+        required
+        autocomplete="email"
+      />
+      <button type="submit" [disabled]="!email.trim() || loading">Complete sign-in</button>
+    </form>
+
+    <p class="error" *ngIf="error && !needEmailConfirmation">{{ error }}</p>
+    <p class="error" *ngIf="error && needEmailConfirmation">{{ error }}</p>
+  </section>
+</main>

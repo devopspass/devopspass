@@ -1,0 +1,56 @@
+name: DevOps Pass AI
+description: Built-in system application that stores user configured applications.
+description_long: Internal application used by DevOps Pass AI to persist user-added applications and their settings.
+icon: https://avatars.githubusercontent.com/u/154536956?s=48&v=4
+doc_types:
+  - dop_app:
+    title: Applications
+    description: User-added application records
+    filter_field: name
+    cache_ok: true
+    hidden_fields:
+      - settings
+      - doc_types
+      - description_long
+  - dop_product:
+    title: Products
+    description: User-added product records
+    filter_field: name
+    cache_ok: true
+    hidden_fields:
+      - resources
+    actions:
+      devops_summary:
+        title: DevOps Summary
+        icon: fas fa-star
+        source: dop/actions/make_product_summary.py
+  - dop_env:
+    title: Product environments
+    description: Product environments information
+    filter_field: name
+    cache_ok: true
+    hidden_fields: []
+    actions:
+      devops_summary:
+        title: DevOps Summary
+        icon: fas fa-star
+        source: dop/actions/make_env_summary.py
+settings:
+  agent.provider:
+    title: Agent Provider
+    description: |
+      Which agent provider to use for AI agents in DevOps Pass AI.
+    type: dropdown
+    default: github_copilot
+    options:
+      - "github_copilot|GitHub Copilot"
+  user.editor:
+    title: Editor
+    description: |
+      Which editor to use, to open files from DevOps Pass AI.
+      To open folder in new window, check `File → Preferences → Settings → search "window.openFoldersInNewWindow" → set to "on"`
+    type: dropdown
+    default: VSCode
+    options:
+      - "vscode|VSCode"
+uniq: true

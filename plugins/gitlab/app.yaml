@@ -1,0 +1,67 @@
+name: GitLab
+description: Web-based Git repository manager that provides source code management (SCM).
+icon: https://avatars.githubusercontent.com/u/1086321?s=200&v=4
+category: git
+check_script: gitlab/docs/check.py
+doc_types:
+  - gitlab_repos:
+    title: GitLab repos
+    filter_field: name
+    source: gitlab/docs/gitlab_repos.py
+    icon: https://avatars.githubusercontent.com/u/1086321?s=200&v=4
+    actions_view_type: buttons
+    cache_ok: true
+    hidden_fields:
+      - ssh_url_to_repo
+      - links
+      - name_with_namespace
+      - visibility
+    get_locally: gitlab/docs/get_gitlab_repo.py
+    actions:
+      gitlab_clone_repo:
+        title: Clone
+        icon: fas fa-folder-plus
+        source: git/actions/clone_git.py
+      open_in_editor:
+        title: Open in IDE
+        icon: fas fa-code
+        source: git/actions/open_in_editor.py
+      devops_summary:
+        title: DevOps Summary
+        icon: fas fa-star
+        source: _common/actions/gather_devops_info.py
+settings:
+  gitlab.server:
+    title: GitLab Server URL
+    type: string
+
+  gitlab.token:
+    title: GitLab Token
+    description: Users Personal Token for GitLab
+    type: secret
+
+  gitlab.clone_source:
+    title: Clone Source
+    description: Choose between SSH or HTTPS for cloning repositories, set to `ssh` or `https`
+    type: dropdown
+    default: ssh
+    options:
+      - ssh
+      - https
+# https://docs.github.com/en/copilot/reference/custom-agents-configuration
+agents:
+  - name: gitlab-researcher
+    description: DevOps Assistant agent to work with GitLab related requests on {gitlab.server}, when cloning repos, use {gitlab.clone_source} url.
+    # tools: []
+    prompt: |
+      You're DevOps assistant agent which is helping user to work with GitLab related requests.
+    mcp-servers:
+      gitlab:
+        type: local
+        command: npx
+        args: ["-y", "@zereight/mcp-gitlab"]
+        env:
+          GITLAB_PERSONAL_ACCESS_TOKEN: "{gitlab.token}"
+          GITLAB_API_URL: "{gitlab.server}"
+          USE_PIPELINE: "true"
+          GITLAB_READ_ONLY_MODE: "true"

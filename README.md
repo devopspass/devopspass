@@ -2,8 +2,7 @@
   <img src="https://static.wixstatic.com/media/09a6dd_eae6b87971dd4d14ba7792cdd237dd76~mv2.png" alt="Logo" width="300" height="auto" />
 </p>
 <p align="center">
-		<a href="https://github.com/devopspass/devopspass"><img alt="Release" src="https://img.shields.io/github/release/devopspass/devopspass.svg" height="20"/></a>
-<a href=""><img alt="Downloads" src="https://img.shields.io/github/downloads/devopspass/devopspass/total" height="20"/></a>
+<a href=""><img alt="Stars" src="https://img.shields.io/github/stars/devopspass/devopspass" height="20"/></a>
 <a href="https://medium.com/@devopspass/"><img alt="Medium" src="https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white" height="20"/></a>
 <a href="https://dev.to/devopspass"><img alt="dev.to" src="https://img.shields.io/badge/dev.to-0A0A0A?style=for-the-badge&logo=devdotto&logoColor=white" height="20"/></a>
 <a href="https://www.linkedin.com/company/devopspass-ai"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="20"/></a>
@@ -26,63 +25,53 @@
 
 Join our Slack community, ask questions, contribute, get help!
 
-[<img src="https://cloudberrydb.org/assets/images/slack_button-7610f9c51d82009ad912aded124c2d88.svg" width="150">](https://join.slack.com/t/devops-pass-ai/shared_invite/zt-2gyn62v9f-5ORKktUINe43qJx7HtKFcw)
+[![Join Slack](https://img.shields.io/badge/Join%20our-Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)](https://join.slack.com/t/devops-pass-ai/shared_invite/zt-2gyn62v9f-5ORKktUINe43qJx7HtKFcw)
 
 
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-screenshots)
 
 ## 📸 Screenshots
 
-[![Kubernetes Integration](https://raw.githubusercontent.com/devopspass/devopspass/main/images/screen1.png)](https://github.com/devopspass/devopspass/releases)
+Example of Chat with DevOps Pass AI - Terraform pipeline analysis
+
+![DOP v10 - example of Chat](https://raw.githubusercontent.com/devopspass/devopspass/refs/heads/main/images/screen1.png)
+
+![DOP v10 - example of Chat](https://raw.githubusercontent.com/devopspass/devopspass/refs/heads/main/images/screen2.png)
 
 
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-why-devops-pass-ai)
 
 ## ⭐️ Why DevOps Pass AI?
 
-We're reintroducing the timeless Unix (originally US Navy) principle called KISS ([Keep It Simple, Stupid!](https://en.wikipedia.org/wiki/KISS_principle)), but in DevOps area.
-We're trying to make some things as simple as possible:
+Look, its early demo of new version of DOP which is really using AI. It's pretty raw, BUT!
 
-* **Tools inventory** - keep links to all DevOps tools by hand
-* **Tools onboarding** - install all necessary tools from UI in a few clicks, keep onboarding instructions links together with apps
-* **Tools adoption** - "One-click-getting-started" principle, dont bother engineers with reading "Getting started ..." documentation, allow them click a few buttons and proceed with business necessary tasks
+Right now it may help you, for example on new project to deep dive into Infrastructure, find out which products team is developing, which envs, where they are deployed, how monitored and so on.
 
+It's more like "DevOps knowledge mining app" at the moment.
 
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-features)
+Right now there is no access to AWS or Kubernetes - frankly too dangerous.
 
-## ✨ Features
+Inside of container I'm not even installing `kubectl` or `aws-cli` and even after that AI sometimes trying to write its own tools in Python to make requests to Kubernetes or AWS (total facepalm...).
 
-* Install various DevOps tools on your local in a few clicks - Docker, VSCode, kubectl, Helm and anything you'll need
-* Manage DevOps related entities from simple UI, like Docker images, Helm charts, AWS profiles, Kubernetes contexts and namespaces, etc.
-* Extend it based on your need, plugins are open source - https://github.com/devopspass/plugins/
-* Make your organization/team DevOps toools and configuration available for everyone, right after login
-* No registration required, just enter your email
-* Not a SaaS, everything running on your local
+Before access to tools will not be fixed - NO ACCESS TO REAL INFRA!
 
-
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-extending-devops-pass-ai)
-
-## 🔌 Extending DevOps Pass AI
-
-If you did not found functionality neccessary for your case, you can create plugins for DOP!
-
-Please check [plugins repo](https://github.com/devopspass/plugins) and [Architecture documentration](https://github.com/devopspass/plugins/blob/main/ARHITECTURE.md).
-
-
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-installation)
+Use it to dig knowledge, analyze your pipelines output, search for configs, etc.
 
 ## 📥 Installation
 
-Download latest release binary from [Release page](https://github.com/devopspass/devopspass/releases) and start using.
+You'll need Docker Compose or Podman Compose installed.
 
+```
+git clone https://github.com/devopspass/devopspass.git
+cd devopspass/
+```
 
-[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/water.png)](#-videos)
+Edit `docker-compose.yml` to provide volume for `/workspace/git` to be able to open repos from UI (may be configured later).
 
-## 🎬 Videos
+```
+docker compose up -d
+```
 
-[![Kubernetes Army Swiss Knife](https://img.youtube.com/vi/fRGozFnP-Yk/0.jpg)](https://youtu.be/fRGozFnP-Yk)
+And go to http://localhost:10818/
 
-[![Docker and Docker Compose Integrations](https://img.youtube.com/vi/NCzJixmzoK8/0.jpg)](https://www.youtube.com/watch?v=NCzJixmzoK8)
-
-[![Docker and Docker Compose Integrations](https://img.youtube.com/vi/8U8c2R3WeTA/0.jpg)](https://www.youtube.com/watch?v=8U8c2R3WeTA)
-
+Enjoy...see you in my Slack (link at the top)!

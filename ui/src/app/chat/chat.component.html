@@ -1,0 +1,725 @@
+<div class="chat-shell">
+  <p *ngIf="error" class="chat-error">{{ error }}</p>
+
+  <aside class="chat-sidebar card">
+    <div class="chat-sidebar-header">
+      <div class="chat-heading-block">
+        <div class="chat-heading-icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16v10H8l-4 4z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="chat-sidebar-title">Chats</div>
+          <div class="muted">Saved chats</div>
+        </div>
+      </div>
+      <button type="button" class="chat-primary-btn" (click)="openCreateThreadDialog()">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14"></path>
+          <path d="M5 12h14"></path>
+        </svg>
+        <span>New Chat</span>
+      </button>
+    </div>
+
+    <div class="chat-thread-list" *ngIf="threads.length > 0; else noThreads">
+      <button
+        type="button"
+        class="chat-thread-item"
+        *ngFor="let thread of threads; trackBy: trackByThread"
+        [class.active]="selectedThread?.id === thread.id"
+        (click)="selectThread(thread.id)">
+        <div class="chat-thread-topline">
+          <div class="chat-thread-name">{{ thread.name }}</div>
+          <span class="chat-thread-badge">{{ thread.message_count ?? 0 }}</span>
+        </div>
+        <div class="chat-thread-meta">
+          <span>messages</span>
+          <span>{{ formatDate(thread.updated_at) }}</span>
+        </div>
+      </button>
+    </div>
+
+    <ng-template #noThreads>
+      <div class="chat-empty-state">
+        <div class="chat-empty-icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16v10H8l-4 4z"></path>
+            <path d="M8 10h8"></path>
+            <path d="M8 14h5"></path>
+          </svg>
+        </div>
+        <div class="chat-empty-title">No chats yet</div>
+        <div class="muted">Create your first chat.</div>
+      </div>
+    </ng-template>
+  </aside>
+
+  <section class="chat-main card" *ngIf="selectedThread as thread; else chatWelcome">
+    <div class="chat-main-header">
+      <div class="chat-heading-block">
+        <div class="chat-heading-icon chat-heading-icon-main" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16v10H8l-4 4z"></path>
+          </svg>
+        </div>
+        <div>
+        <div class="chat-main-title">{{ thread.name }}</div>
+        <div class="muted">Use &#64;agent and #doc text.</div>
+        </div>
+      </div>
+      <div class="chat-main-actions">
+        <button type="button" class="chat-toolbar-btn" (click)="openAgentsDialog()">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>Agents</span>
+        </button>
+        <button type="button" class="chat-toolbar-btn" (click)="openEditThreadDialog()">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 20h4l10-10-4-4L4 16z"></path>
+            <path d="M12 6l4 4"></path>
+          </svg>
+          <span>Edit</span>
+        </button>
+        <button type="button" class="chat-toolbar-btn chat-toolbar-btn-danger" (click)="deleteSelectedThread()">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 7h16"></path>
+            <path d="M9 7V4h6v3"></path>
+            <path d="M7 7l1 13h8l1-13"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+          </svg>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-attached-resources" *ngIf="thread.attached_docs.length > 0">
+      <div class="chat-section-label">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 3h6l5 5v13H8z"></path>
+          <path d="M14 3v5h5"></path>
+        </svg>
+        <span>Attached Docs</span>
+      </div>
+      <div class="resource-chips">
+        <div
+          class="resource-chip resource-chip-clickable"
+          *ngFor="let item of attachedDocItems(thread)"
+          role="button"
+          tabindex="0"
+          (click)="openResolvedDoc(item.doc)"
+          (keydown.enter)="openResolvedDoc(item.doc)"
+          (keydown.space)="openResolvedDoc(item.doc); $event.preventDefault()">
+          <img *ngIf="resourceIcon(item.resource) as icon" class="resource-icon" [src]="icon" [alt]="item.resource.name" />
+          <div class="resource-chip-text">
+            <div class="resource-chip-name">{{ item.resource.name }}</div>
+            <div class="resource-chip-meta">{{ item.resource.app_id }} • #{{ item.resource.doc_type }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div #messagesContainer class="chat-messages" *ngIf="(thread.messages?.length ?? 0) > 0 || selectedThreadHasPendingUserMessage || selectedThreadPending; else noMessages">
+      <ng-container *ngFor="let item of getThreadTimeline(thread); trackBy: trackByTimelineItem">
+        <div
+          *ngIf="item.kind === 'message'; else cancelledTimelineItem"
+          class="chat-message"
+          [class.chat-message-user]="item.message.role === 'user'"
+          [class.chat-message-assistant]="item.message.role !== 'user'">
+          <div class="chat-message-header">
+            <div class="chat-message-identity">
+              <span class="chat-message-avatar">
+                <svg *ngIf="item.message.role === 'user'" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <svg *ngIf="item.message.role !== 'user'" class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 8V4H8"></path>
+                  <rect x="4" y="8" width="16" height="12" rx="2"></rect>
+                  <path d="M2 14h2"></path>
+                  <path d="M20 14h2"></path>
+                  <path d="M15 13v2"></path>
+                  <path d="M9 13v2"></path>
+                </svg>
+              </span>
+              <span class="chat-message-role">{{ item.message.role === 'user' ? 'You' : 'Copilot' }}</span>
+            </div>
+            <span class="muted">{{ formatDate(item.message.created_at) }}</span>
+          </div>
+          <div class="chat-message-body">
+            <div class="chat-message-text">
+              <ng-container *ngIf="item.message.role !== 'user'; else userMessageText">
+                <div class="chat-message-markdown" (click)="onAssistantMarkdownClick($event)" [innerHTML]="renderMessageMarkdown(item.message.text)"></div>
+              </ng-container>
+              <ng-template #userMessageText>
+                <ng-container *ngFor="let chunk of messageTextChunks(item.message); trackBy: trackByMessageChunk">
+                  <span
+                    *ngIf="chunk.doc; else plainMessageChunk"
+                    class="chat-inline-doc-chip"
+                    role="button"
+                    tabindex="0"
+                    (click)="openResolvedDoc(chunk.doc)"
+                    (keydown.enter)="openResolvedDoc(chunk.doc)"
+                    (keydown.space)="openResolvedDoc(chunk.doc); $event.preventDefault()">
+                    <img *ngIf="resourceIcon(docToResourceRef(chunk.doc)) as icon" class="chat-inline-doc-chip-icon" [src]="icon" [alt]="docDisplayName(chunk.doc)" />
+                    <span class="chat-inline-doc-chip-label">{{ chunk.text }}</span>
+                    <span class="chat-inline-doc-chip-meta">{{ chunk.doc.app_id || '-' }}:{{ chunk.doc.doc_type }}</span>
+                  </span>
+                  <ng-template #plainMessageChunk>{{ chunk.text }}</ng-template>
+                </ng-container>
+                <div class="chat-inline-doc-mentions" *ngIf="messageDocItems(item.message).length > 0 && !hasRenderedDocChunk(item.message)">
+                  <span
+                    *ngFor="let mention of messageDocItems(item.message)"
+                    class="chat-inline-doc-chip"
+                    [class.chat-inline-doc-chip-clickable]="!!mention.doc"
+                    role="button"
+                    tabindex="0"
+                    (click)="openResolvedDoc(mention.doc)"
+                    (keydown.enter)="openResolvedDoc(mention.doc)"
+                    (keydown.space)="openResolvedDoc(mention.doc); $event.preventDefault()">
+                    <img *ngIf="resourceIcon(mention.resource) as icon" class="chat-inline-doc-chip-icon" [src]="icon" [alt]="mention.resource.name" />
+                    <span class="chat-inline-doc-chip-label">#{{ mention.resource.name }}</span>
+                    <span class="chat-inline-doc-chip-meta">{{ mention.resource.app_id || '-' }}:{{ mention.resource.doc_type }}</span>
+                  </span>
+                </div>
+              </ng-template>
+            </div>
+            <div
+              class="agent-transcript"
+              *ngIf="item.message.role !== 'user' && getVisibleTranscript(thread, item.message).length > 0">
+              <button
+                type="button"
+                class="agent-transcript-toggle"
+                (click)="toggleMessageTranscript(item.message.id)">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline *ngIf="!isMessageTranscriptExpanded(item.message.id)" points="9 18 15 12 9 6"></polyline>
+                  <polyline *ngIf="isMessageTranscriptExpanded(item.message.id)" points="6 9 12 15 18 9"></polyline>
+                </svg>
+                <span>{{ isMessageTranscriptExpanded(item.message.id) ? 'Hide' : 'Show' }} activity ({{ getVisibleTranscript(thread, item.message).length }} steps)</span>
+              </button>
+              <div class="agent-transcript-body" *ngIf="isMessageTranscriptExpanded(item.message.id)">
+                <div
+                  class="agent-transcript-item"
+                  *ngFor="let transcriptItem of getVisibleTranscript(thread, item.message)">
+                  {{ transcriptItem.text }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #cancelledTimelineItem>
+          <ng-container *ngIf="getCancelledTimelineJob(item) as cancelledJob">
+            <div class="chat-message chat-message-assistant">
+              <div class="chat-message-header">
+                <div class="chat-message-identity">
+                  <span class="chat-message-avatar">
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 8V4H8"></path>
+                      <rect x="4" y="8" width="16" height="12" rx="2"></rect>
+                      <path d="M2 14h2"></path>
+                      <path d="M20 14h2"></path>
+                      <path d="M15 13v2"></path>
+                      <path d="M9 13v2"></path>
+                    </svg>
+                  </span>
+                  <span class="chat-message-role">Copilot</span>
+                </div>
+                <span class="muted">{{ formatDate(cancelledJob.finishedAt || cancelledJob.createdAt) }}</span>
+              </div>
+              <div class="chat-message-body">
+                <div class="chat-message-text">Cancelled by user</div>
+                <div class="agent-transcript agent-transcript-open">
+                  <button
+                    type="button"
+                    class="agent-transcript-toggle"
+                    (click)="toggleCancelledTranscript(cancelledJob.jobId)">
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline *ngIf="!isCancelledTranscriptExpanded(cancelledJob.jobId)" points="9 18 15 12 9 6"></polyline>
+                      <polyline *ngIf="isCancelledTranscriptExpanded(cancelledJob.jobId)" points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                    <span>{{ isCancelledTranscriptExpanded(cancelledJob.jobId) ? 'Hide' : 'Show' }} activity ({{ cancelledJob.events.length }} steps)</span>
+                  </button>
+                  <div class="agent-transcript-body agent-transcript-body-open" *ngIf="isCancelledTranscriptExpanded(cancelledJob.jobId)">
+                    <div class="agent-transcript-item" *ngFor="let transcriptItem of cancelledJob.events">
+                      {{ transcriptItem.text }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </ng-template>
+      </ng-container>
+
+      <div class="chat-message chat-message-user chat-message-pending" *ngIf="selectedThreadHasPendingUserMessage && pendingUserMessage">
+        <div class="chat-message-header">
+          <div class="chat-message-identity">
+            <span class="chat-message-avatar">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 6h16v10H8l-4 4z"></path>
+              </svg>
+            </span>
+            <span class="chat-message-role">You</span>
+          </div>
+          <span class="muted">Now</span>
+        </div>
+        <div class="chat-message-body">
+          <div class="chat-message-text">
+            <ng-container *ngFor="let chunk of messageTextChunks(pendingUserMessage); trackBy: trackByMessageChunk">
+              <span
+                *ngIf="chunk.doc; else plainMessageChunk"
+                class="chat-inline-doc-chip"
+                role="button"
+                tabindex="0"
+                (click)="openResolvedDoc(chunk.doc)"
+                (keydown.enter)="openResolvedDoc(chunk.doc)"
+                (keydown.space)="openResolvedDoc(chunk.doc); $event.preventDefault()">
+                <img *ngIf="resourceIcon(docToResourceRef(chunk.doc)) as icon" class="chat-inline-doc-chip-icon" [src]="icon" [alt]="docDisplayName(chunk.doc)" />
+                <span class="chat-inline-doc-chip-label">{{ chunk.text }}</span>
+                <span class="chat-inline-doc-chip-meta">{{ chunk.doc.app_id || '-' }}:{{ chunk.doc.doc_type }}</span>
+              </span>
+              <ng-template #plainMessageChunk>{{ chunk.text }}</ng-template>
+            </ng-container>
+            <div class="chat-inline-doc-mentions" *ngIf="messageDocItems(pendingUserMessage).length > 0 && !hasRenderedDocChunk(pendingUserMessage)">
+              <span
+                *ngFor="let mention of messageDocItems(pendingUserMessage)"
+                class="chat-inline-doc-chip"
+                [class.chat-inline-doc-chip-clickable]="!!mention.doc"
+                role="button"
+                tabindex="0"
+                (click)="openResolvedDoc(mention.doc)"
+                (keydown.enter)="openResolvedDoc(mention.doc)"
+                (keydown.space)="openResolvedDoc(mention.doc); $event.preventDefault()">
+                <img *ngIf="resourceIcon(mention.resource) as icon" class="chat-inline-doc-chip-icon" [src]="icon" [alt]="mention.resource.name" />
+                <span class="chat-inline-doc-chip-label">#{{ mention.resource.name }}</span>
+                <span class="chat-inline-doc-chip-meta">{{ mention.resource.app_id || '-' }}:{{ mention.resource.doc_type }}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-message chat-message-assistant chat-message-pending" *ngIf="selectedThreadPending || selectedThreadHasPendingUserMessage">
+        <div class="chat-message-header">
+          <div class="chat-message-identity">
+            <span class="chat-message-avatar">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 8V4H8"></path>
+                <rect x="4" y="8" width="16" height="12" rx="2"></rect>
+                <path d="M2 14h2"></path>
+                <path d="M20 14h2"></path>
+                <path d="M15 13v2"></path>
+                <path d="M9 13v2"></path>
+              </svg>
+            </span>
+            <span class="chat-message-role">Copilot</span>
+          </div>
+          <div class="chat-pending-header-actions">
+            <span class="muted"><span class="chat-spinner"></span>Thinking...</span>
+            <button
+              *ngIf="selectedThreadPending"
+              type="button"
+              class="chat-stop-btn"
+              (click)="stopSelectedThreadJob()"
+              [disabled]="isStoppingSelectedThreadJob()">
+              {{ isStoppingSelectedThreadJob() ? 'Stopping…' : 'Stop' }}
+            </button>
+          </div>
+        </div>
+        <div class="chat-message-body">
+          <div class="chat-message-text">
+            <span class="chat-thinking-dots"><span class="chat-spinner"></span>Thinking...</span>
+            <div class="agent-activity-stream" *ngIf="selectedThread && getAgentActivity(selectedThread.id).length > 0">
+              <div
+                class="agent-activity-item"
+                *ngFor="let item of getAgentActivity(selectedThread.id)">
+                {{ item.text }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="chat-message chat-message-assistant"
+        *ngIf="selectedThread && !selectedThreadPending && !hasAssistantMessages(selectedThread) && getCompletedTranscript(selectedThread.id).length > 0 && getCancelledJobTranscripts(selectedThread.id).length === 0">
+        <div class="chat-message-header">
+          <div class="chat-message-identity">
+            <span class="chat-message-avatar">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 8V4H8"></path>
+                <rect x="4" y="8" width="16" height="12" rx="2"></rect>
+                <path d="M2 14h2"></path>
+                <path d="M20 14h2"></path>
+                <path d="M15 13v2"></path>
+                <path d="M9 13v2"></path>
+              </svg>
+            </span>
+            <span class="chat-message-role">Copilot</span>
+          </div>
+          <span class="muted">Activity transcript</span>
+        </div>
+        <div class="chat-message-body">
+          <div class="agent-transcript" style="margin-top: 0; border-top: 0; padding-top: 0;">
+            <button
+              type="button"
+              class="agent-transcript-toggle"
+              (click)="toggleTranscript(selectedThread.id)">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline *ngIf="!isTranscriptExpanded(selectedThread.id)" points="9 18 15 12 9 6"></polyline>
+                <polyline *ngIf="isTranscriptExpanded(selectedThread.id)" points="6 9 12 15 18 9"></polyline>
+              </svg>
+              <span>{{ isTranscriptExpanded(selectedThread.id) ? 'Hide' : 'Show' }} activity ({{ getCompletedTranscript(selectedThread.id).length }} steps)</span>
+            </button>
+            <div class="agent-transcript-body" *ngIf="isTranscriptExpanded(selectedThread.id)">
+              <div class="agent-transcript-item" *ngFor="let item of getCompletedTranscript(selectedThread.id)">
+                {{ item.text }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noMessages>
+      <div class="chat-empty-state chat-empty-state-inline">
+        <div class="chat-empty-icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <path d="M8 9h8"></path>
+            <path d="M8 13h6"></path>
+          </svg>
+        </div>
+        <div class="chat-empty-title">No messages yet</div>
+        <div class="muted">Send a message.</div>
+      </div>
+    </ng-template>
+
+    <div class="chat-composer">
+      <div class="chat-composer-box">
+        <div
+          #messageInput
+          class="message-editor"
+          contenteditable="true"
+          spellcheck="false"
+          role="textbox"
+          aria-multiline="true"
+          (keydown)="onMessageKeydown($event)"
+          (input)="onMessageInput()"
+          (click)="onMessageClick($event)"
+          (blur)="onMessageBlur()"
+          data-placeholder="Type a message. Mention agents with &#64;agent_name and add doc context with #search text"></div>
+
+        <div class="message-picker" *ngIf="messagePickerOpen" (mousedown)="$event.preventDefault()">
+          <div
+            class="message-picker-item"
+            *ngFor="let suggestion of currentMessageSuggestions; let idx = index"
+            [class.active]="idx === activeMessagePickerIndex"
+            (mousedown)="messagePickerMode === 'agent' ? onSelectMessageAgent($any(suggestion)) : onSelectMessageDoc($any(suggestion))">
+            <ng-container *ngIf="messagePickerMode === 'agent'; else docSuggestion">
+              <span class="message-picker-prefix">&#64;</span>
+              <div class="message-picker-text">
+                <div class="message-picker-title">{{ $any(suggestion).name }}</div>
+                <div class="muted">{{ $any(suggestion).title }}</div>
+              </div>
+            </ng-container>
+            <ng-template #docSuggestion>
+              <img
+                *ngIf="getDocTypeMeta($any(suggestion).doc_type).icon as docIcon"
+                class="doc-type-icon"
+                [src]="docIcon"
+                [alt]="docDisplayName($any(suggestion))" />
+              <span class="message-picker-prefix">#</span>
+              <div class="message-picker-text">
+                <div class="message-picker-title">{{ docDisplayName($any(suggestion)) }}</div>
+                <div class="muted">{{ $any(suggestion).app_id || '-' }} • {{ $any(suggestion).doc_type }}</div>
+              </div>
+            </ng-template>
+          </div>
+          <div class="message-picker-hint muted">
+            <span *ngIf="messagePickerMode === 'agent'">Select agent mention</span>
+            <span *ngIf="messagePickerMode === 'doc'">Select doc context</span>
+          </div>
+        </div>
+      </div>
+      <div class="chat-composer-actions">
+        <div class="muted">Use Arrow keys + Enter in picker. Ctrl/Cmd+Enter sends.</div>
+        <button type="button" class="chat-primary-btn" (click)="sendMessage()" [disabled]="selectedThreadPending || selectedThreadHasPendingUserMessage || loading">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 2L11 13"></path>
+            <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
+          </svg>
+          <span>Send</span>
+          <span *ngIf="selectedThreadPending || selectedThreadHasPendingUserMessage" class="chat-spinner"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <ng-template #chatWelcome>
+    <section class="chat-main card chat-welcome">
+      <div class="chat-welcome-icon" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16v10H8l-4 4z"></path>
+          <path d="M8 10h8"></path>
+          <path d="M8 14h6"></path>
+        </svg>
+      </div>
+      <div class="chat-main-title">Chat Workspace</div>
+      <div class="muted">Create a chat and start messaging.</div>
+      <div class="chat-main-actions">
+        <button type="button" class="chat-primary-btn" (click)="openCreateThreadDialog()">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14"></path>
+            <path d="M5 12h14"></path>
+          </svg>
+          <span>Create Chat</span>
+        </button>
+        <button type="button" class="chat-toolbar-btn" (click)="openAgentsDialog()">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>Manage Agents</span>
+        </button>
+      </div>
+    </section>
+  </ng-template>
+</div>
+
+<div class="modal" *ngIf="showThreadDialog" (click)="closeThreadDialog()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-title-row">
+      <h2>{{ editingThreadId === null ? 'New Chat' : 'Edit Chat' }}</h2>
+      <span class="dialog-title-icon" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16v10H8l-4 4z"></path>
+        </svg>
+      </span>
+    </div>
+
+    <label>Chat Name</label>
+    <input [(ngModel)]="threadName" placeholder="Release coordination" />
+
+    <label>Attached Docs</label>
+    <div class="resource-picker" (click)="$event.stopPropagation()">
+      <div class="doc-type-edit-field">
+        <input
+          class="doc-type-input"
+          [ngModel]="resourceSearchText"
+          (focus)="onResourceFocus()"
+          (input)="onResourceInput($any($event.target).value)"
+          (keydown)="onResourceKeydown($event)"
+          placeholder="Search docs (#type &#64;app)" />
+      </div>
+      <div class="doc-type-dropdown" *ngIf="resourcePickerOpen">
+        <div
+          class="doc-type-option"
+          *ngFor="let doc of filteredResourceResults; let idx = index"
+          (mousedown)="onSelectResource(doc); $event.preventDefault(); $event.stopPropagation()"
+          [class.active]="idx === activeResourceIndex">
+          <img *ngIf="getDocTypeMeta(doc.doc_type).icon as docIcon" class="doc-type-icon" [src]="docIcon" [alt]="docDisplayName(doc)" />
+          <div class="doc-type-text">
+            <div class="doc-type-title">{{ docDisplayName(doc) }}</div>
+            <div class="muted">#{{ doc.doc_type }} • {{ doc.app_id || '-' }}</div>
+          </div>
+        </div>
+        <div class="muted" *ngIf="filteredResourceResults.length === 0">No docs found</div>
+      </div>
+    </div>
+
+    <div class="resource-chips" *ngIf="threadAttachedDocs.length > 0">
+      <div class="resource-chip" *ngFor="let resource of threadAttachedDocs">
+        <img *ngIf="resourceIcon(resource) as icon" class="resource-icon" [src]="icon" [alt]="resource.name" />
+        <div class="resource-chip-text">
+          <div class="resource-chip-name">{{ resource.name }}</div>
+          <div class="resource-chip-meta">{{ resource.app_id }} • #{{ resource.doc_type }}</div>
+        </div>
+        <button class="icon-btn" type="button" (click)="removeThreadResource(resource)" aria-label="Remove doc">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6L6 18"></path>
+            <path d="M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="row end">
+      <button type="button" class="chat-toolbar-btn" (click)="closeThreadDialog()">Cancel</button>
+      <button type="button" class="chat-primary-btn" (click)="saveThread()" [disabled]="loading">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <path d="M17 21v-8H7v8"></path>
+          <path d="M7 3v5h8"></path>
+        </svg>
+        <span>Save</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" *ngIf="showAgentsDialog" (click)="closeAgentsDialog()">
+  <div class="dialog dialog-narrow" (click)="$event.stopPropagation()">
+    <div class="chat-main-header">
+      <div class="chat-heading-block">
+        <div class="chat-heading-icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div>
+        <h2>Agents</h2>
+        <div class="muted">Reusable prompts.</div>
+        </div>
+      </div>
+      <button type="button" class="chat-primary-btn" (click)="openCreateAgentDialog()">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14"></path>
+          <path d="M5 12h14"></path>
+        </svg>
+        <span>New Agent</span>
+      </button>
+    </div>
+
+    <div class="agent-list" *ngIf="agents.length > 0; else noAgents">
+      <div class="agent-row" *ngFor="let agent of agents">
+        <div>
+          <div class="agent-row-title">{{ agent.title }}</div>
+          <div class="muted">&#64;{{ agent.name }}</div>
+        </div>
+        <div class="agent-row-actions">
+          <button type="button" class="chat-toolbar-btn" (click)="openAgentPreview(agent)">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span>Preview</span>
+          </button>
+          <button type="button" class="chat-toolbar-btn" (click)="openEditAgentDialog(agent)">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 20h4l10-10-4-4L4 16z"></path>
+              <path d="M12 6l4 4"></path>
+            </svg>
+            <span>Edit</span>
+          </button>
+          <button type="button" class="chat-toolbar-btn chat-toolbar-btn-danger" (click)="deleteAgent(agent)">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7h16"></path>
+              <path d="M9 7V4h6v3"></path>
+              <path d="M7 7l1 13h8l1-13"></path>
+              <path d="M10 11v6"></path>
+              <path d="M14 11v6"></path>
+            </svg>
+            <span>Delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noAgents>
+      <div class="chat-empty-state chat-empty-state-inline">
+        <div class="chat-empty-icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="chat-empty-title">No agents created yet</div>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<div class="modal" *ngIf="showAgentEditDialog" (click)="closeAgentEditDialog()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-title-row">
+      <h2>{{ editingAgentId === null ? 'New Agent' : 'Edit Agent' }}</h2>
+      <span class="dialog-title-icon" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      </span>
+    </div>
+
+    <label>Name</label>
+    <input [(ngModel)]="agentName" placeholder="release_helper" />
+
+    <label>Title</label>
+    <input [(ngModel)]="agentTitle" placeholder="Release Helper" />
+
+    <label>Description</label>
+    <textarea [(ngModel)]="agentDescription" placeholder="Optional short summary"></textarea>
+
+    <label>Model</label>
+    <input [(ngModel)]="agentModel" placeholder="Optional (e.g. gpt-5-mini)" />
+
+    <label>Prompt</label>
+    <textarea [(ngModel)]="agentPrompt" rows="10" placeholder="System prompt for the future AI agent"></textarea>
+
+    <div class="row end">
+      <button type="button" class="chat-toolbar-btn" (click)="closeAgentEditDialog()">Cancel</button>
+      <button type="button" class="chat-primary-btn" (click)="saveAgent()" [disabled]="loading">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <path d="M17 21v-8H7v8"></path>
+          <path d="M7 3v5h8"></path>
+        </svg>
+        <span>Save</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" *ngIf="showAgentPreviewDialog && previewAgent as agent" (click)="closeAgentPreview()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="chat-main-header">
+      <div class="chat-heading-block">
+        <div class="chat-heading-icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div>
+        <h2>{{ agent.title }}</h2>
+        <div class="muted">&#64;{{ agent.name }}</div>
+        </div>
+      </div>
+      <button type="button" class="chat-toolbar-btn" (click)="closeAgentPreview()">Close</button>
+    </div>
+
+    <div class="entry" *ngIf="agent.description">
+      <h3>Description</h3>
+      <div>{{ agent.description }}</div>
+    </div>
+
+    <div class="entry" *ngIf="agent.model">
+      <h3>Model</h3>
+      <div>{{ agent.model }}</div>
+    </div>
+
+    <div class="entry">
+      <h3>Prompt</h3>
+      <pre class="agent-prompt">{{ agent.prompt }}</pre>
+    </div>
+  </div>
+</div>

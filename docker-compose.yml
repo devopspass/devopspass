@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  devopspass:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: devopspass/devopspass:latest
+    container_name: devopspass
+    ports:
+      - "10818:8080"
+    environment:
+      - FASTAPI_HOST=0.0.0.0
+      - FASTAPI_PORT=8081
+      - FASTAPI_RELOAD=false
+      - FASTAPI_WORKERS=2
+      - DOP_PLUGINS_DIR=/workspace/plugins
+      - DOP_DATA_DIR=/workspace/.data
+      - DOP_LOGS_DIR=/workspace/logs
+      - FIREBASE_PROJECT_ID=devops-pass-ai
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - NGINX_PORT=8080
+    volumes:
+      - dop-data:/workspace/.data
+      - dop-logs:/workspace/logs
+      # Used to make proper links for VSCode URL's
+      - ./docker-compose.yml:/workspace/docker-compose.yml:ro
+      # Folder for Git workspace where git repos will be cloned
+      # - /User/USER_NAME/DEVEL:/workspace/git
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  dop-data:
+  dop-logs:

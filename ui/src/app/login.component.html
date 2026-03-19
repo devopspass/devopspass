@@ -1,0 +1,36 @@
+<main class="auth-page">
+  <section class="auth-card">
+    <img src="assets/icon.png" alt="DevOps Pass AI" class="auth-logo" />
+    <h1>Sign in to DevOps Pass AI</h1>
+    <p class="muted">Enter your email and we will send a secure sign-in link.</p>
+
+    <form (ngSubmit)="sendLink()" class="auth-form">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        [(ngModel)]="email"
+        type="email"
+        placeholder="you@company.com"
+        required
+        autocomplete="email"
+      />
+
+      <label class="risk-ack">
+        <input
+          type="checkbox"
+          name="acceptedRisk"
+          [(ngModel)]="acceptedRisk"
+        />
+        <span>I'm aware that using this app is at my own risk</span>
+      </label>
+
+      <button type="submit" [disabled]="loading || !email.trim() || !acceptedRisk">
+        {{ loading ? 'Sending link...' : 'Send login link' }}
+      </button>
+    </form>
+
+    <p class="success" *ngIf="sentTo">Sign-in link sent to {{ sentTo }}.</p>
+    <p class="error" *ngIf="error">{{ error }}</p>
+  </section>
+</main>

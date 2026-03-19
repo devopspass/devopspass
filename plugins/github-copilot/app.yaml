@@ -1,0 +1,21 @@
+name: GitHub Copilot
+description: AI coding assistant integration for GitHub Copilot CLI.
+description_long: Configure GitHub Copilot CLI access for use in DevOps Pass AI plugin workflows.
+icon: https://github.githubassets.com/images/modules/site/copilot/copilot.png
+check_script: github-copilot/docs/check.py
+settings:
+  copilot-cli.key:
+    title: Copilot CLI Key
+    description: |
+      Authenticate with a Personal Access Token (PAT) used for Github Copilot CLI.
+
+      You can also authenticate using a fine-grained PAT with the "Copilot Requests" permission enabled.
+       - Visit https://github.com/settings/personal-access-tokens/new
+       - Under "Permissions," click "add permissions" and select "Copilot Requests"
+       - Generate your token
+    type: secret
+    mandatory: true
+uniq: true
+app_id: github-copilot
+agent_provider: true
+category: ai-agents

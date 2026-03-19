@@ -1,0 +1,77 @@
+name: Confluence
+description: Knowledge base and documentation integration for Atlassian Confluence.
+icon: https://wac-cdn.atlassian.com/assets/img/favicons/atlassian/favicon.png
+doc_types:
+  - confluence_pages:
+    title: Confluence pages
+    filter_field: title
+    source: confluence/docs/confluence_pages.py
+    icon: https://wac-cdn.atlassian.com/assets/img/favicons/atlassian/favicon.png
+    actions_view_type: buttons
+    cache_ok: true
+    hidden_fields:
+      - body_storage
+      - history
+      - version
+      - last_updated
+  - confluence_spaces:
+    title: Confluence spaces
+    filter_field: key
+    source: confluence/docs/confluence_spaces.py
+    icon: https://wac-cdn.atlassian.com/assets/img/favicons/atlassian/favicon.png
+    actions_view_type: buttons
+    cache_ok: true
+settings:
+  confluence.url:
+    title: Confluence URL
+    description: Confluence base URL, e.g. `https://your-company.atlassian.net/wiki` or self-hosted URL
+    type: string
+    mandatory: true
+
+  confluence.username:
+    title: Confluence Username
+    description: Email/username for Confluence authentication (required for Cloud mode)
+    type: string
+
+  confluence.token:
+    title: Confluence Token
+    description: Confluence API token / PAT / password
+    type: secret
+    mandatory: true
+
+  confluence.auth_mode:
+    title: Auth Mode
+    description: Use `cloud` for Atlassian Cloud or `standalone` for self-hosted Confluence
+    type: dropdown
+    default: cloud
+    options:
+      - cloud
+      - standalone
+
+  confluence.verify_ssl:
+    title: Verify SSL Certificates
+    description: Disable only for trusted self-hosted environments with custom certificates
+    type: boolean
+    default: true
+
+  confluence.cql:
+    title: Confluence CQL
+    description: CQL query used to fetch pages
+    type: string
+    default: type = page ORDER BY lastmodified DESC
+agents:
+  - name: confluence-researcher
+    description: DevOps Assistant agent to work with Confluence related requests on {confluence.url}.
+    prompt: |
+      You're DevOps assistant agent which is helping user to work with Confluence related requests.
+      Use that agent only if user asking to search in Confluence.
+    mcp-servers:
+      mcp-atlassian:
+        type: local
+        command: uvx
+        args: ["mcp-atlassian"]
+        env:
+          CONFLUENCE_URL: "{confluence.url}"
+          CONFLUENCE_USERNAME: "{confluence.username}"
+          CONFLUENCE_API_TOKEN: "{confluence.token}"
+          READ_ONLY_MODE: "true"

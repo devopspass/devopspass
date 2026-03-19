@@ -1,0 +1,88 @@
+name: Bitbucket
+description: Bitbucket Cloud and self-hosted repository integration.
+icon: https://www.svgrepo.com/show/349308/bitbucket.svg
+category: git
+check_script: bitbucket/docs/check.py
+doc_types:
+  - bitbucket_repos:
+    title: Bitbucket repos
+    filter_field: name
+    source: bitbucket/docs/bitbucket_repos.py
+    icon: https://www.svgrepo.com/show/349308/bitbucket.svg
+    actions_view_type: buttons
+    cache_ok: true
+    hidden_fields:
+      - ssh_url_to_repo
+      - clone_url
+      - full_name
+      - links
+      - variant
+      - workspace_slug
+      - project_key
+    get_locally: bitbucket/docs/get_bitbucket_repo.py
+    actions:
+      bitbucket_clone_repo:
+        title: Clone
+        icon: fas fa-folder-plus
+        source: git/actions/clone_git.py
+      open_in_editor:
+        title: Open in IDE
+        icon: fas fa-code
+        source: git/actions/open_in_editor.py
+      devops_summary:
+        title: DevOps Summary
+        icon: fas fa-star
+        source: _common/actions/gather_devops_info.py
+settings:
+  bitbucket.variant:
+    title: Bitbucket Variant
+    description: Choose between Bitbucket Cloud and self-hosted Bitbucket Server/Data Center
+    type: dropdown
+    default: cloud
+    options:
+      - cloud
+      - server
+
+  bitbucket.server:
+    title: Bitbucket Server URL
+    description: Base web URL, e.g. `https://bitbucket.org` or your self-hosted Bitbucket URL
+    type: string
+    default: https://bitbucket.org
+
+  bitbucket.api_url:
+    title: Bitbucket API URL
+    description: Optional API base URL. Leave empty to auto-detect from variant and server URL.
+    type: string
+
+  bitbucket.workspace:
+    title: Bitbucket Cloud Workspace Slug
+    description: >-
+      Required for Bitbucket Cloud. The workspace slug from your Bitbucket URL, e.g. `my-team` from `bitbucket.org/my-team`.
+      Not needed for Bitbucket Server/Data Center.
+    type: string
+
+  bitbucket.username:
+    title: Bitbucket Username or Atlassian Email
+    description: Your Atlassian account email (e.g. `you@example.com`). Required for Cloud auth alongside `bitbucket.token` or `bitbucket.app_password`.
+    type: string
+
+  bitbucket.app_password:
+    title: Bitbucket App Password
+    description: A Bitbucket App Password. Use with `bitbucket.username`. For Server — use with `bitbucket.username` for basic auth.
+    type: secret
+
+  bitbucket.token:
+    title: Bitbucket API Token
+    description: >-
+      For Bitbucket Cloud — an Atlassian API token from id.atlassian.com (use with `bitbucket.username`).
+      For Bitbucket Server/Data Center — a personal access token (no username needed).
+    type: secret
+
+  bitbucket.clone_source:
+    title: Clone Source
+    description: Choose between SSH or HTTPS for cloning repositories
+    type: dropdown
+    default: ssh
+    options:
+      - ssh
+      - https

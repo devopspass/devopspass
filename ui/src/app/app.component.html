@@ -1,0 +1,1036 @@
+<header class="top-navbar">
+  <div class="brand">
+    <img src="assets/icon.png" alt="DevOps Pass AI" class="brand-icon" />
+    <span>DevOps Pass AI</span>
+  </div>
+  <div class="top-actions" (click)="$event.stopPropagation()">
+    <button class="onboarding-resume-btn" *ngIf="onboardingStatus === 'skipped'" (click)="resumeOnboarding()">Resume Onboarding</button>
+    <div class="settings-menu">
+      <button class="icon-btn" (click)="toggleJobsMenu()" title="Jobs" aria-label="Jobs">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="tiny-spinner" *ngIf="isAnyJobRunning()"></span>
+      </button>
+      <div class="dropdown jobs-dropdown" *ngIf="showJobsMenu">
+        <div class="jobs-empty muted" *ngIf="jobs.length === 0">No jobs yet</div>
+        <div class="job-item-row" *ngFor="let job of jobs">
+          <button class="job-item" (click)="openJobDialog(job)">
+            <span class="status-dot" [class.running]="job.status === 'running' || job.status === 'queued' || job.status === 'blocked'" [class.success]="job.status === 'success'" [class.failed]="job.status === 'failed'" [class.cancelled]="job.status === 'cancelled'"></span>
+            <span class="job-item-text">{{ job.dop_app_name || job.app_id || '-' }} • {{ job.doc_type_title }}</span>
+            <span class="muted">{{ jobStatusLabel(job) }}</span>
+          </button>
+          <button
+            *ngIf="canCancelJob(job)"
+            type="button"
+            class="job-stop-btn"
+            (click)="cancelJob(job, $event)"
+            [disabled]="isStoppingJob(job.id)">
+            {{ isStoppingJob(job.id) ? 'Stopping…' : 'Stop' }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-menu">
+    <button class="icon-btn" (click)="toggleSettingsMenu()" title="Settings" aria-label="Settings">
+      <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+    <div class="dropdown" *ngIf="showSettingsMenu">
+      <button (click)="reloadConfigs()">Reload Configs</button>
+      <button (click)="logout()">Logout</button>
+    </div>
+  </div>
+  </div>
+</header>
+
+<section class="onboarding" *ngIf="showOnboarding">
+  <div class="onboarding-header">
+    <h1>Welcome to DevOps Pass AI</h1>
+    <p>Complete onboarding to configure integrations and generate initial summaries.</p>
+    <div class="onboarding-actions">
+      <button (click)="skipOnboarding()">Skip for now</button>
+    </div>
+  </div>
+
+  <div class="onboarding-steps">
+    <div class="onboarding-step" [class.active]="onboardingStep === 1" [class.completed]="onboardingStep > 1">
+      <span class="onboarding-step-icon" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 8V4H8"></path>
+          <rect x="4" y="8" width="16" height="12" rx="2"></rect>
+          <path d="M2 14h2"></path>
+          <path d="M20 14h2"></path>
+          <path d="M15 13v2"></path>
+          <path d="M9 13v2"></path>
+        </svg>
+      </span>
+      <span>1. AI Agent</span>
+      <span class="onboarding-step-check" *ngIf="onboardingStep > 1" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </span>
+    </div>
+    <div class="onboarding-step" [class.active]="onboardingStep === 2" [class.completed]="onboardingStep > 2">
+      <span class="onboarding-step-icon" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M2 12h20"></path>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+      </span>
+      <span>2. Git</span>
+      <span class="onboarding-step-check" *ngIf="onboardingStep > 2" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </span>
+    </div>
+    <div class="onboarding-step" [class.active]="onboardingStep === 3" [class.completed]="onboardingStep > 3">
+      <span class="onboarding-step-icon" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7l9-4 9 4-9 4-9-4z"></path>
+          <path d="M3 7v10l9 4 9-4V7"></path>
+          <path d="M12 11v10"></path>
+        </svg>
+      </span>
+      <span>3. Products</span>
+      <span class="onboarding-step-check" *ngIf="onboardingStep > 3" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </span>
+    </div>
+    <div class="onboarding-step" [class.active]="onboardingStep === 4" [class.completed]="onboardingStep > 4">
+      <span class="onboarding-step-icon" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+      </span>
+      <span>4. Summaries</span>
+      <span class="onboarding-step-check" *ngIf="onboardingStep > 4" aria-hidden="true">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </span>
+    </div>
+  </div>
+
+  <div class="onboarding-card" *ngIf="onboardingStep === 1">
+    <h2>Configure AI Agent</h2>
+    <p>Set up an AI agent provider that will work under the hood to analyze your repositories and infer products. This agent powers the intelligent analysis throughout onboarding.</p>
+    <div class="onboarding-app-list">
+      <div class="card" *ngFor="let app of onboardingAiApps">
+        <div class="onboarding-app-title-row">
+          <img *ngIf="app.icon" class="onboarding-app-icon" [src]="app.icon" [alt]="app.name" />
+          <div class="card-title">{{ app.name }}</div>
+        </div>
+        <div class="muted">{{ app.description }}</div>
+        <button class="onboarding-add-btn" (click)="openOnboardingConfigureApp(app)">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14"></path>
+            <path d="M5 12h14"></path>
+          </svg>
+          <span>Add</span>
+        </button>
+      </div>
+    </div>
+    <div class="muted" *ngIf="onboardingAiApps.length === 0">No AI-agent plugins found.</div>
+    <div class="onboarding-next">
+      <button [disabled]="!onboardingAiConfigured" (click)="onboardingStep = 2">Next</button>
+    </div>
+  </div>
+
+  <div class="onboarding-card" *ngIf="onboardingStep === 2">
+    <h2>Configure Git Integration</h2>
+    <p>Add at least one git app and test credentials. Doc sync starts automatically after add.</p>
+    <div class="onboarding-app-list" *ngIf="!onboardingGitRefreshJobsRunning">
+      <div class="card" *ngFor="let app of onboardingGitApps">
+        <div class="onboarding-app-title-row">
+          <img *ngIf="app.icon" class="onboarding-app-icon" [src]="app.icon" [alt]="app.name" />
+          <div class="card-title">{{ app.name }}</div>
+        </div>
+        <div class="muted">{{ app.description }}</div>
+        <button class="onboarding-add-btn" (click)="openOnboardingConfigureApp(app)">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14"></path>
+            <path d="M5 12h14"></path>
+          </svg>
+          <span>Add</span>
+        </button>
+      </div>
+    </div>
+    <div class="muted" *ngIf="!onboardingGitRefreshJobsRunning && onboardingGitApps.length === 0">No git plugins found.</div>
+    <div class="onboarding-sync-status" *ngIf="onboardingGitConfigured && onboardingGitRefreshJobsRunning">
+      <div class="onboarding-sync-spinner" aria-hidden="true"></div>
+      <div class="onboarding-sync-text">
+        <span class="muted">Syncing repository documents...</span>
+        <div class="onboarding-sync-jobs">
+          <button class="job-link" *ngFor="let jobId of onboardingGitRefreshJobIds" (click)="openJobDialog(getJobById(jobId)!)">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <path d="M3 9h18"></path>
+              <path d="M9 21V9"></path>
+            </svg>
+            View sync progress
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="onboarding-card" *ngIf="onboardingStep === 3">
+    <h2>Analyze Git Activity</h2>
+    <p>Based on your git activity we'll find out products you're working on.</p>
+    <a
+      class="onboarding-slack-link"
+      href="https://join.slack.com/t/devops-pass-ai/shared_invite/zt-2gyn62v9f-5ORKktUINe43qJx7HtKFcw"
+      target="_blank"
+      rel="noopener noreferrer">
+      Join Slack
+    </a>
+    <div class="row" *ngIf="!onboardingAnalysisJob || onboardingAnalysisJob.status !== 'running' && onboardingAnalysisJob.status !== 'queued' && onboardingAnalysisJob.status !== 'blocked'">
+      <button (click)="startOnboardingAnalysisIfNeeded()" [disabled]="onboardingLoading || onboardingAnalysisPromptSent">Run Analysis</button>
+    </div>
+
+    <div class="onboarding-job-status" *ngIf="onboardingAnalysisJob as job">
+      <span class="onboarding-job-spinner" *ngIf="job.status === 'running' || job.status === 'queued' || job.status === 'blocked'" aria-hidden="true"></span>
+      <span class="muted">{{ jobStatusLabel(job) }}</span>
+      <span class="muted" *ngIf="job.blocking_reason">— {{ job.blocking_reason }}</span>
+      <button (click)="openJobDialog(job)">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <path d="M3 9h18"></path>
+          <path d="M9 21V9"></path>
+        </svg>
+        Open Job Log
+      </button>
+    </div>
+    <div class="muted" *ngIf="onboardingProductsAutoLoading">Loading detected products...</div>
+
+    <div class="onboarding-product-select" *ngIf="onboardingProducts.length > 0">
+      <h3>Select Products and Resources</h3>
+      <div class="onboarding-product-item" *ngFor="let product of onboardingProducts; let pIndex = index">
+        <div class="onboarding-product-header">
+          <label class="checkbox">
+            <input type="checkbox" [checked]="product.selected" (change)="toggleOnboardingProduct(pIndex, $any($event.target).checked)" />
+            <span class="onboarding-product-name">{{ product.name }}</span>
+          </label>
+          <input class="onboarding-product-id-input" [(ngModel)]="product.id" placeholder="product-id" (click)="$event.stopPropagation()" />
+        </div>
+        <div class="onboarding-resource-item" *ngFor="let resource of product.resources; let rIndex = index">
+          <div class="onboarding-resource-row">
+            <label class="checkbox onboarding-resource-checkbox">
+              <input type="checkbox" [checked]="resource.selected" (change)="toggleOnboardingResource(pIndex, rIndex, $any($event.target).checked)" />
+              <a class="onboarding-repo-link" [href]="resource.git_repo" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">{{ repoLinkLabel(resource.git_repo) }}</a>
+            </label>
+            <a class="onboarding-repo-open" [href]="resource.git_repo" target="_blank" rel="noopener noreferrer">Open</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="onboarding-next">
+        <button (click)="applyOnboardingProducts()" [disabled]="onboardingLoading">Create Products and Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="onboarding-card" *ngIf="onboardingStep === 4">
+    <h2>Generate Initial Summaries</h2>
+    <p>Stages: resources summary -> products summary -> envs summary.</p>
+    <a
+      class="onboarding-slack-link"
+      href="https://join.slack.com/t/devops-pass-ai/shared_invite/zt-2gyn62v9f-5ORKktUINe43qJx7HtKFcw"
+      target="_blank"
+      rel="noopener noreferrer">
+      Join Slack
+    </a>
+
+    <div class="onboarding-stage">
+      <h3>Resources Summary</h3>
+      <div class="job-item-row" *ngFor="let job of onboardingResourceSummaryJobs">
+        <button class="job-item" (click)="openJobDialog(job)">
+          <span class="status-dot" [class.running]="job.status === 'running' || job.status === 'queued' || job.status === 'blocked'" [class.success]="job.status === 'success'" [class.failed]="job.status === 'failed'" [class.cancelled]="job.status === 'cancelled'"></span>
+          <span class="job-item-text">{{ job.doc_name || job.doc_type_title }}</span>
+          <span class="muted">
+            {{ jobStatusLabel(job) }}
+            <span class="onboarding-inline-spinner" *ngIf="job.status === 'running'" aria-hidden="true"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="onboarding-stage">
+      <h3>Products Summary</h3>
+      <div class="job-item-row" *ngFor="let job of onboardingProductSummaryJobs">
+        <button class="job-item" (click)="openJobDialog(job)">
+          <span class="status-dot" [class.running]="job.status === 'running' || job.status === 'queued' || job.status === 'blocked'" [class.success]="job.status === 'success'" [class.failed]="job.status === 'failed'" [class.cancelled]="job.status === 'cancelled'"></span>
+          <span class="job-item-text">{{ job.doc_name || job.doc_type_title }}</span>
+          <span class="muted">
+            {{ jobStatusLabel(job) }}
+            <span class="onboarding-inline-spinner" *ngIf="job.status === 'running'" aria-hidden="true"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="onboarding-stage">
+      <h3>Envs Summary</h3>
+      <div class="job-item-row" *ngFor="let job of onboardingEnvSummaryJobs">
+        <button class="job-item" (click)="openJobDialog(job)">
+          <span class="status-dot" [class.running]="job.status === 'running' || job.status === 'queued' || job.status === 'blocked'" [class.success]="job.status === 'success'" [class.failed]="job.status === 'failed'" [class.cancelled]="job.status === 'cancelled'"></span>
+          <span class="job-item-text">{{ job.doc_name || job.doc_type_title }}</span>
+          <span class="muted">
+            {{ jobStatusLabel(job) }}
+            <span class="onboarding-inline-spinner" *ngIf="job.status === 'running'" aria-hidden="true"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="onboarding-next">
+      <button (click)="finalizeOnboardingIfReady()">Finish Onboarding</button>
+    </div>
+  </div>
+</section>
+
+<div class="layout" *ngIf="!showOnboarding">
+  <aside class="sidebar">
+    <nav class="tabs">
+      <button [class.active]="activeSection === 'chat'" (click)="activeSection = 'chat'">
+        <span class="icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16v10H8l-4 4z"></path>
+          </svg>
+        </span>
+        <span>Chat</span>
+      </button>
+      <button [class.active]="activeSection === 'docs'" (click)="activeSection = 'docs'">
+        <span class="icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3h6l5 5v13H8z"></path>
+            <path d="M14 3v5h5"></path>
+            <path d="M11 13h5"></path>
+            <path d="M11 17h5"></path>
+          </svg>
+        </span>
+        <span>Docs</span>
+      </button>
+      <button [class.active]="activeSection === 'products'" (click)="activeSection = 'products'">
+        <span class="icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7l9-4 9 4-9 4-9-4z"></path>
+            <path d="M3 7v10l9 4 9-4V7"></path>
+            <path d="M12 11v10"></path>
+          </svg>
+        </span>
+        <span>Products</span>
+      </button>
+      <button [class.active]="activeSection === 'applications'" (click)="activeSection = 'applications'">
+        <span class="icon" aria-hidden="true">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="7" height="7"></rect>
+            <rect x="13" y="4" width="7" height="7"></rect>
+            <rect x="4" y="13" width="7" height="7"></rect>
+            <rect x="13" y="13" width="7" height="7"></rect>
+          </svg>
+        </span>
+        <span>Applications</span>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="content" [class.content-chat]="activeSection === 'chat'">
+    <p *ngIf="error" class="error">{{ error }}</p>
+
+    <section *ngIf="activeSection === 'applications'">
+      <div class="row docs-row search-row">
+        <input [(ngModel)]="appSearchText" placeholder="Search applications" />
+        <button class="add-app-btn" (click)="openAddDialog()">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14"></path>
+            <path d="M5 12h14"></path>
+          </svg>
+          <span>Add Application</span>
+        </button>
+      </div>
+
+      <div class="applications-grid">
+      <div class="card app-card" *ngFor="let app of filteredApplications" (click)="onDocCardClick($event, app)" tabindex="0" role="button" (keydown.enter)="openDocPreview(app)" (keydown.space)="openDocPreview(app)">
+        <div class="app-title-row">
+          <img *ngIf="app.content['icon'] as appIcon" class="app-icon" [src]="asText(appIcon)" [alt]="asText(app.content['name'] || 'app')" />
+          <div class="card-title">{{ app.content['name'] }}</div>
+        </div>
+        <div class="app-id">{{ app.app_id }}</div>
+        <div class="muted">{{ app.content['description'] }}</div>
+        <div class="row actions" (click)="$event.stopPropagation()">
+          <button class="icon-btn" (click)="viewApplication(app)" title="View" aria-label="View">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+          <button class="icon-btn" (click)="openEditDialog(app)" title="Edit" aria-label="Edit">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 20h4l10-10-4-4L4 16z"></path>
+              <path d="M12 6l4 4"></path>
+            </svg>
+          </button>
+          <button *ngIf="!isBuiltinApp(app)" class="icon-btn" (click)="deleteApplication(app)" title="Delete" aria-label="Delete">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h16"></path>
+              <path d="M9 7V4h6v3"></path>
+              <path d="M7 7l1 13h8l1-13"></path>
+              <path d="M10 11v6"></path>
+              <path d="M14 11v6"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <section *ngIf="activeSection === 'products'">
+      <div class="row docs-row search-row">
+        <input [(ngModel)]="productSearchText" placeholder="Search products" />
+        <button class="add-app-btn" (click)="openAddProductDialog()">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14"></path>
+            <path d="M5 12h14"></path>
+          </svg>
+          <span>Add Product</span>
+        </button>
+      </div>
+
+      <div class="products-grid">
+        <div class="card product-card" *ngFor="let product of filteredProducts" (click)="onDocCardClick($event, product)" tabindex="0" role="button" (keydown.enter)="openDocPreview(product)" (keydown.space)="openDocPreview(product)">
+          <div class="app-title-row">
+            <img class="doc-icon" [src]="productCardIcon(product)" [alt]="product.content['name'] || product.app_id || 'Product'" />
+            <div class="card-title">{{ product.content['name'] || product.app_id || 'Product' }}</div>
+          </div>
+          <div class="app-id">{{ product.app_id }}</div>
+          <div class="muted">{{ productCardDescription(product) }}</div>
+          <div class="row actions" (click)="$event.stopPropagation()">
+            <button class="icon-btn" (click)="openEditProductDialog(product)" title="Edit" aria-label="Edit">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20h4l10-10-4-4L4 16z"></path>
+                <path d="M12 6l4 4"></path>
+              </svg>
+            </button>
+            <button class="icon-btn" (click)="deleteProduct(product)" title="Delete" aria-label="Delete">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7h16"></path>
+                <path d="M9 7V4h6v3"></path>
+                <path d="M7 7l1 13h8l1-13"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section *ngIf="activeSection === 'docs'">
+      <div class="row search-row">
+        <div class="docs-search">
+          <div class="docs-search-input-wrap">
+            <input #docsSearchInput [(ngModel)]="docsSearchText" (ngModelChange)="onDocsSearchInput($event)" (keydown)="onDocsSearchKeydown($event)" placeholder="Search docs, e.g. chef base cookbook" />
+            <span class="docs-search-spinner" *ngIf="docsSearchLoading" aria-hidden="true"></span>
+          </div>
+          <div class="doc-type-dropdown" *ngIf="docsTypePickerOpen">
+            <div class="doc-type-option" *ngFor="let docType of filteredDocTypes; let idx = index" (click)="onSelectDocType(docType.key)" [class.active]="idx === activeDocTypeIndex">
+              <img *ngIf="docType.icon" class="doc-type-icon" [src]="docType.icon" [alt]="docType.title" />
+              <div class="doc-type-text">
+                <div class="doc-type-title">{{ docType.title }}</div>
+                <div class="muted">#{{ docType.key }}</div>
+              </div>
+            </div>
+            <div class="muted" *ngIf="filteredDocTypes.length === 0">No doc types found</div>
+          </div>
+        </div>
+        <div class="doc-type-field" (click)="$event.stopPropagation()">
+          <div class="doc-type-edit-field">
+            <img *ngIf="selectedDocTypeForField?.icon" class="doc-type-icon" [src]="selectedDocTypeForField?.icon" [alt]="selectedDocTypeForField?.title || docsSearchType" />
+            <span class="doc-type-prefix">#</span>
+            <input class="doc-type-input" [(ngModel)]="docsSearchType" (focus)="onDocTypeFieldFocus()" (input)="onDocTypeFieldInput($any($event.target).value)" (keydown)="onDocTypeFieldKeydown($event)" placeholder="doc_type" />
+          </div>
+          <div class="doc-type-dropdown" *ngIf="docsTypeFieldOpen">
+            <div class="doc-type-option" *ngFor="let docType of filteredDocTypesForField; let idx = index" (mousedown)="onSelectDocType(docType.key); $event.preventDefault(); $event.stopPropagation()" [class.active]="idx === activeDocTypeIndex">
+              <img *ngIf="docType.icon" class="doc-type-icon" [src]="docType.icon" [alt]="docType.title" />
+              <div class="doc-type-text">
+                <div class="doc-type-title">{{ docType.title }}</div>
+                <div class="muted">#{{ docType.key }}</div>
+              </div>
+            </div>
+            <div class="muted" *ngIf="filteredDocTypesForField.length === 0">No doc types found</div>
+          </div>
+        </div>
+        <div class="doc-type-field app-field" (click)="$event.stopPropagation()">
+          <div class="doc-type-edit-field">
+            <img *ngIf="selectedAppForField?.icon" class="doc-type-icon" [src]="selectedAppForField?.icon" [alt]="selectedAppForField?.title || docsSearchApp" />
+            <span class="doc-type-prefix">&#64;</span>
+            <input class="doc-type-input" [(ngModel)]="docsSearchApp" (focus)="onDocAppFieldFocus()" (input)="onDocAppFieldInput($any($event.target).value)" (keydown)="onDocAppFieldKeydown($event)" placeholder="app_id" />
+          </div>
+          <div class="doc-type-dropdown" *ngIf="docsAppFieldOpen">
+            <div class="doc-type-option" *ngFor="let app of filteredAppsForField; let idx = index" (mousedown)="onSelectDocApp(app.appId); $event.preventDefault(); $event.stopPropagation()" [class.active]="idx === activeAppIndex">
+              <img *ngIf="app.icon" class="doc-type-icon" [src]="app.icon" [alt]="app.title" />
+              <div class="doc-type-text">
+                <div class="doc-type-title">{{ app.title }}</div>
+                <div class="muted">{{ app.appId }}</div>
+              </div>
+            </div>
+            <div class="muted" *ngIf="filteredAppsForField.length === 0">No applications found</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="docs-grid" #docsGridContainer>
+        <div class="card doc-card" *ngFor="let doc of displayedDocs" (click)="onDocCardClick($event, doc)" tabindex="0" role="button" (keydown.enter)="openDocPreview(doc)" (keydown.space)="openDocPreview(doc)">
+          <div class="doc-title-row">
+            <img *ngIf="getDocTypeMeta(doc.doc_type).icon as docIcon" class="doc-icon" [src]="docIcon" [alt]="docDisplayName(doc)" />
+            <div class="card-title">
+              <a
+                *ngIf="docUrl(doc) as url; else docTitleText"
+                class="doc-title-link"
+                [href]="url"
+                target="_blank"
+                rel="noopener noreferrer"
+                (click)="$event.stopPropagation()">
+                <span>{{ docDisplayName(doc) }}</span>
+                <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 3h7v7"></path>
+                  <path d="M10 14L21 3"></path>
+                  <path d="M21 14v7h-7"></path>
+                  <path d="M3 10V3h7"></path>
+                  <path d="M3 21h7v-7"></path>
+                </svg>
+              </a>
+              <ng-template #docTitleText>{{ docDisplayName(doc) }}</ng-template>
+            </div>
+          </div>
+          <div class="muted">#{{ doc.doc_type }} • {{ doc.app_id || '-' }}</div>
+          <div class="doc-fields">
+            <div class="doc-field" *ngFor="let entry of docDisplayEntries(doc)">
+              <span class="doc-label">{{ entry.label }}</span>
+              <span class="doc-value">{{ entry.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="docs-pagination-footer" *ngIf="docsTotalCount > docsPerPage">
+        <div class="pagination-status">
+          Showing {{ displayedDocs.length }} of {{ docsTotalCount }} docs
+        </div>
+        <div class="pagination-controls">
+          <button class="pagination-toggle" (click)="toggleDocsScrollMode()" [title]="docsUseInfiniteScroll ? 'Switch to Load More button' : 'Switch to Infinite Scroll'">
+            {{ docsUseInfiniteScroll ? 'Infinite Scroll' : 'Load More Button' }}
+          </button>
+          <button class="pagination-load-more" *ngIf="!docsUseInfiniteScroll && docsCurrentPage * docsPerPage < docsTotalCount" (click)="loadMoreDocsManual()" [disabled]="docsLoadingMore">
+            {{ docsLoadingMore ? 'Loading...' : 'Load More' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="docs-loading-indicator" *ngIf="docsLoadingMore && docsUseInfiniteScroll">
+        <div class="spinner-container">
+          <span class="tiny-spinner"></span>
+          <span class="loading-text">Loading more docs...</span>
+        </div>
+      </div>
+    </section>
+
+    <section *ngIf="activeSection === 'chat'" class="chat-section">
+      <app-chat [pluginApps]="pluginApps" [applications]="applications" (previewDoc)="onChatPreviewDoc($event)" (pendingJobsChange)="onChatPendingJobsChange($event)"></app-chat>
+    </section>
+  </main>
+</div>
+
+<div class="modal" *ngIf="showAddDialog" (click)="onAddDialogBackdropClick()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="doc-title-row" *ngIf="isEditingApplication && selectedPlugin">
+      <img *ngIf="selectedPlugin.icon" class="doc-icon" [src]="selectedPlugin.icon" [alt]="selectedPlugin.name" />
+      <h2>{{ selectedPlugin.name }}</h2>
+    </div>
+    <div class="muted" *ngIf="isEditingApplication">{{ newAppId }}</div>
+    <h2 *ngIf="!isEditingApplication">Add Application</h2>
+
+    <ng-container *ngIf="isEditingApplication && selectedPluginKey !== 'dop'">
+      <label>Description</label>
+      <textarea [(ngModel)]="editDescription" placeholder="Application description"></textarea>
+
+      <label>URL</label>
+      <input [(ngModel)]="editUrl" placeholder="https://example.com" />
+    </ng-container>
+
+    <label *ngIf="!isEditingApplication">Application</label>
+    <div class="add-app-picker" *ngIf="!isEditingApplication" (click)="$event.stopPropagation()">
+      <div class="doc-type-edit-field add-app-picker-input">
+        <img *ngIf="selectedPluginForAdd?.icon" class="doc-type-icon" [src]="selectedPluginForAdd?.icon" [alt]="selectedPluginForAdd?.name || addAppSearchText" />
+        <input
+          class="doc-type-input"
+          [ngModel]="addAppSearchText"
+          (focus)="onAddAppFieldFocus()"
+          (input)="onAddAppFieldInput($any($event.target).value)"
+          (keydown)="onAddAppFieldKeydown($event)"
+          placeholder="Search app" />
+      </div>
+      <div class="doc-type-dropdown" *ngIf="addAppPickerOpen">
+        <div
+          class="doc-type-option"
+          *ngFor="let app of filteredPluginApps; let idx = index"
+          (mousedown)="onSelectAddApp(app.plugin_key); $event.preventDefault(); $event.stopPropagation()"
+          [class.active]="idx === activeAddAppIndex">
+          <img *ngIf="app.icon" class="doc-type-icon" [src]="app.icon" [alt]="app.name" />
+          <div class="doc-type-text">
+            <div class="doc-type-title">{{ app.name }}</div>
+          </div>
+        </div>
+        <div class="muted" *ngIf="filteredPluginApps.length === 0">No applications found</div>
+      </div>
+    </div>
+
+    <label *ngIf="!isEditingApplication">Application ID</label>
+    <input
+      *ngIf="!isEditingApplication"
+      [(ngModel)]="newAppId"
+      [disabled]="isSelectedPluginAppIdLocked"
+      [placeholder]="isSelectedPluginAppIdLocked ? '' : 'my-gitlab'" />
+    <div class="muted" *ngIf="!isEditingApplication && isSelectedPluginAppIdLocked">
+      Application ID is fixed by this plugin and cannot be changed.
+    </div>
+
+    <ng-container *ngIf="selectedPlugin as plugin">
+      <div *ngFor="let setting of plugin.settings | keyvalue" class="setting">
+        <label>{{ setting.value.title }} <span *ngIf="setting.value.mandatory">*</span></label>
+
+        <input *ngIf="setting.value.type === 'string' || setting.value.type === 'secret'"
+          [(ngModel)]="addFormSettings[setting.key]"
+          [type]="setting.value.type === 'secret' ? 'password' : 'text'" />
+
+        <textarea *ngIf="setting.value.type === 'text'" [(ngModel)]="addFormSettings[setting.key]"></textarea>
+
+        <select *ngIf="setting.value.type === 'dropdown'" [(ngModel)]="addFormSettings[setting.key]">
+          <option *ngFor="let option of setting.value.options" [value]="settingOptionParts(option).value">
+            {{ settingOptionParts(option).title }}
+          </option>
+        </select>
+
+        <label *ngIf="setting.value.type === 'boolean'" class="checkbox">
+          <input type="checkbox" [(ngModel)]="addFormSettings[setting.key]" /> Enabled
+        </label>
+
+        <div class="muted" *ngIf="setting.value.description" [innerHTML]="renderMarkdown(setting.value.description)"></div>
+      </div>
+    </ng-container>
+
+    <div class="row" *ngIf="selectedPluginRequiresTest && addAppTestMessage">
+      <span class="muted" [class.error]="addAppTestStatus === 'failed'">{{ addAppTestMessage }}</span>
+    </div>
+
+    <div class="row end">
+      <button (click)="closeAddDialog()">Cancel</button>
+      <button
+        *ngIf="selectedPluginRequiresTest && addAppTestStatus !== 'success'"
+        class="test-action-btn"
+        (click)="testApplicationConfig()"
+        [disabled]="addAppTestStatus === 'running' || loading || !selectedPlugin">
+        {{ addAppTestStatus === 'running' ? 'Testing...' : 'Test' }}
+      </button>
+      <button
+        *ngIf="!selectedPluginRequiresTest || addAppTestStatus === 'success'"
+        (click)="addApplication()"
+        [disabled]="!canSaveApplication">
+        {{ isEditingApplication ? 'Update' : 'Save' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" *ngIf="showProductDialog" (click)="onProductDialogBackdropClick()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <h2 *ngIf="!isEditingProduct">Add Product</h2>
+    <h2 *ngIf="isEditingProduct">Edit Product</h2>
+
+    <div class="dialog-tabs">
+      <button
+        class="dialog-tab"
+        [class.active]="productDialogTab === 'general'"
+        (click)="productDialogTab = 'general'">
+        General
+      </button>
+      <button
+        class="dialog-tab"
+        [class.active]="productDialogTab === 'resources'"
+        (click)="productDialogTab = 'resources'">
+        Resources ({{ editProductResources.length }})
+      </button>
+    </div>
+
+    <div *ngIf="productDialogTab === 'general'" class="dialog-tab-content">
+      <label>Product ID</label>
+      <input [(ngModel)]="newProductId" [disabled]="isEditingProduct" placeholder="product-id" />
+
+      <label>Name</label>
+      <input [(ngModel)]="editProductName" placeholder="Product name" />
+
+      <label>Prompt / Description</label>
+      <textarea [(ngModel)]="editProductPrompt" placeholder="Describe the product"></textarea>
+
+      <label>Icon</label>
+      <input [(ngModel)]="editProductIcon" placeholder="https://example.com/icon.png" />
+
+      <label>URL</label>
+      <input [(ngModel)]="editProductUrl" placeholder="https://example.com" />
+    </div>
+
+    <div *ngIf="productDialogTab === 'resources'" class="dialog-tab-content">
+      <div class="resource-picker" (click)="$event.stopPropagation()">
+        <div class="doc-type-edit-field">
+          <input
+            class="doc-type-input"
+            [ngModel]="productResourceSearchText"
+            (focus)="onProductResourceFocus()"
+            (input)="onProductResourceInput($any($event.target).value)"
+            (keydown)="onProductResourceKeydown($event)"
+            placeholder="Search docs (#type @app)" />
+        </div>
+        <div class="doc-type-dropdown" *ngIf="productResourcePickerOpen">
+          <div
+            class="doc-type-option"
+            *ngFor="let doc of filteredProductResourceResults; let idx = index"
+            (mousedown)="onSelectProductResource(doc); $event.preventDefault(); $event.stopPropagation()"
+            [class.active]="idx === activeProductResourceIndex">
+            <img *ngIf="getDocTypeMeta(doc.doc_type).icon as docIcon" class="doc-type-icon" [src]="docIcon" [alt]="docDisplayName(doc)" />
+            <div class="doc-type-text">
+              <div class="doc-type-title">{{ docDisplayName(doc) }}</div>
+              <div class="muted">#{{ doc.doc_type }} • {{ doc.app_id || '-' }}</div>
+            </div>
+          </div>
+          <div class="muted" *ngIf="filteredProductResourceResults.length === 0">No docs found</div>
+        </div>
+      </div>
+
+      <div class="resource-chips" *ngIf="editProductResources.length > 0">
+        <div
+          class="resource-chip"
+          *ngFor="let resource of editProductResources"
+          role="button"
+          tabindex="0"
+          (click)="openProductResource(resource)"
+          (keydown.enter)="openProductResource(resource)"
+          (keydown.space)="openProductResource(resource); $event.preventDefault()">
+          <div
+            class="resource-facts-indicator"
+            [class.has-facts]="getResourceFactsStatus(resource).hasFacts"
+            [title]="getResourceFactsStatus(resource).title">
+          </div>
+          <img *ngIf="resourceIcon(resource) as icon" class="resource-icon" [src]="icon" [alt]="resourceLabel(resource)" />
+          <div class="resource-chip-text">
+            <div class="resource-chip-name">{{ resourceLabel(resource) }}</div>
+            <div class="resource-chip-meta">{{ resource.app_id }} • #{{ resource.doc_type }}</div>
+          </div>
+          <button class="icon-btn" type="button" (click)="removeProductResource(resource); $event.stopPropagation()" aria-label="Remove">
+            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6L6 18"></path>
+              <path d="M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row end">
+      <button (click)="closeProductDialog()">Cancel</button>
+      <button (click)="saveProduct()" [disabled]="loading">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" *ngIf="showPreviewDialog && selectedPreviewDoc as doc" (click)="onPreviewBackdropClick()">
+  <div class="dialog preview" (click)="$event.stopPropagation()">
+    <div class="doc-title-row">
+      <img *ngIf="getDocTypeMeta(doc.doc_type).icon as docIcon" class="doc-icon" [src]="docIcon" [alt]="docDisplayName(doc)" />
+      <h2>
+        <a
+          *ngIf="docUrl(doc) as url; else previewTitleText"
+          class="doc-title-link"
+          [href]="url"
+          target="_blank"
+          rel="noopener noreferrer">
+          <span>{{ docDisplayName(doc) }}</span>
+          <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 3h7v7"></path>
+            <path d="M10 14L21 3"></path>
+            <path d="M21 14v7h-7"></path>
+            <path d="M3 10V3h7"></path>
+            <path d="M3 21h7v-7"></path>
+          </svg>
+        </a>
+        <ng-template #previewTitleText>{{ docDisplayName(doc) }}</ng-template>
+      </h2>
+    </div>
+    <div class="preview-meta-row">
+      <div class="muted">#{{ doc.doc_type }} • {{ doc.app_id || '-' }}</div>
+      <button
+        *ngIf="doc.doc_type === 'dop_env' && linkedProductForEnv(doc) as product"
+        type="button"
+        class="preview-linked-product"
+        (click)="openLinkedProductFromEnv($event, doc)">
+        Product: {{ product.content['name'] || product.app_id || 'Product' }}
+      </button>
+      <span
+        *ngIf="doc.doc_type === 'dop_env'"
+        class="preview-env-type-pill"
+        [ngClass]="productEnvironmentTypeClass(doc)">
+        {{ productEnvironmentTypeLabel(doc) }}
+      </span>
+    </div>
+
+    <div class="preview-body" *ngIf="previewDocActions() as actions">
+      <div class="preview-main" [class.preview-main-full]="actions.length === 0">
+        <div class="entry" *ngFor="let item of previewEntries()">
+          <h3>{{ item.label }}</h3>
+          <div *ngIf="!item.isNested" [innerHTML]="item.html"></div>
+          <div *ngIf="item.isNested" class="nested-entries">
+            <div class="nested-entry" *ngFor="let nested of item.nestedEntries">
+              <div class="nested-label">{{ nested.label }}</div>
+              <div class="nested-value" [innerHTML]="nested.html"></div>
+            </div>
+          </div>
+          <ul *ngIf="item.isList" class="preview-list">
+            <li *ngFor="let listItem of item.listItems" class="preview-list-item">
+              <div *ngIf="listItem.html" [innerHTML]="listItem.html"></div>
+              <div *ngIf="listItem.nestedEntries" class="nested-entries">
+                <div class="nested-entry" *ngFor="let nested of listItem.nestedEntries">
+                  <div class="nested-label">{{ nested.label }}</div>
+                  <div class="nested-value" [innerHTML]="nested.html"></div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="entry" *ngIf="hasRenderableFact(doc)">
+          <h3>Facts</h3>
+          <div [innerHTML]="renderMarkdown(doc.fact)"></div>
+        </div>
+
+        <div class="entry" *ngIf="doc.doc_type === 'dop_product'">
+          <h3>Environments</h3>
+          <div class="muted" *ngIf="previewProductEnvironmentsLoading">Loading environments...</div>
+          <div class="muted" *ngIf="!previewProductEnvironmentsLoading && previewProductEnvironments.length === 0">No environments found</div>
+          <div class="preview-env-table-wrap" *ngIf="!previewProductEnvironmentsLoading && previewProductEnvironments.length > 0">
+            <table class="preview-env-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let envDoc of previewProductEnvironments"
+                  class="preview-env-row"
+                  role="button"
+                  tabindex="0"
+                  (click)="openProductEnvironmentPreview($event, envDoc)"
+                  (keydown.enter)="openProductEnvironmentPreview($event, envDoc)"
+                  (keydown.space)="openProductEnvironmentPreview($event, envDoc)">
+                  <td>
+                    <div class="preview-env-name-cell">
+                      <div
+                        class="resource-facts-indicator"
+                        [class.has-facts]="hasAnyFact(envDoc)"
+                        [title]="hasAnyFact(envDoc) ? 'Facts available for this document' : 'No facts available for this document'">
+                      </div>
+                      <span>{{ envDoc.content['name'] || docDisplayName(envDoc) }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="preview-env-type-pill" [ngClass]="productEnvironmentTypeClass(envDoc)">
+                      {{ productEnvironmentTypeLabel(envDoc) }}
+                    </span>
+                  </td>
+                  <td>{{ envDoc.content['description'] || '-' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div *ngIf="doc.doc_type === 'dop_product' && previewProductResources().length > 0" class="preview-product-resources">
+          <h3>Resources</h3>
+          <div class="resource-chips">
+            <div
+              class="resource-chip"
+              *ngFor="let item of previewProductResources()"
+              (click)="item.doc && openProductResourcePreview($event, item.doc)"
+              [class.resource-chip-clickable]="!!item.doc"
+              tabindex="0"
+              role="button"
+              (keydown.enter)="item.doc && openProductResourcePreview($event, item.doc)"
+              (keydown.space)="item.doc && openProductResourcePreview($event, item.doc)">
+              <div
+                class="resource-facts-indicator"
+                [class.has-facts]="!!item.doc && hasAnyFact(item.doc)"
+                [title]="item.doc && hasAnyFact(item.doc) ? 'Facts available for this document' : 'No facts available for this document'">
+              </div>
+              <img
+                *ngIf="item.doc && getDocTypeMeta(item.doc.doc_type).icon as icon"
+                class="resource-icon"
+                [src]="icon"
+                [alt]="item.resource.name" />
+              <div class="resource-chip-text">
+                <div class="resource-chip-name">{{ item.resource.name }}</div>
+                <div class="resource-chip-meta">{{ item.resource.app_id }} • #{{ item.resource.doc_type }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="doc.doc_type === 'dop_app'" class="preview-doc-types">
+          <h3>Doc Types</h3>
+          <div
+            class="doc-type-option preview-doc-type-option"
+            *ngFor="let docType of previewDocTypes()"
+            (click)="openDocsForTypeFromPreview(docType.key)"
+            tabindex="0"
+            role="button"
+            (keydown.enter)="openDocsForTypeFromPreview(docType.key)"
+            (keydown.space)="openDocsForTypeFromPreview(docType.key)">
+            <img *ngIf="docType.icon" class="doc-type-icon" [src]="docType.icon" [alt]="docType.title" />
+            <div class="doc-type-text">
+              <div class="doc-type-title">{{ docType.title }}</div>
+              <div class="muted">#{{ docType.key }}</div>
+            </div>
+            <button
+              *ngIf="docType.source"
+              class="icon-btn preview-doc-type-action"
+              type="button"
+              title="Reload"
+              aria-label="Reload"
+              (click)="refreshDocTypeFromPreview($event, docType.key)">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
+                <path d="M20.49 15a9 9 0 0 1-14.13 3.36L1 14"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="preview-actions" *ngIf="actions.length > 0">
+        <h3>Actions</h3>
+        <div class="action-item" *ngFor="let action of actions">
+          <button
+            class="preview-action-btn"
+            type="button"
+            (click)="runDocActionFromPreview($event, action.key)"
+            [disabled]="runningActionKey !== null">
+            <i *ngIf="action.icon" [ngClass]="action.icon"></i>
+            <span>{{ action.title }}</span>
+          </button>
+          <span class="tiny-spinner" *ngIf="runningActionKey === action.key" style="position: absolute; right: -6px; top: -6px;"></span>
+        </div>
+      </aside>
+    </div>
+
+    <div class="row end">
+      <button (click)="closeDocPreview()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" *ngIf="showJobDialog && selectedJob as job" (click)="closeJobDialog()">
+  <div class="dialog preview" (click)="$event.stopPropagation()">
+    <div class="doc-title-row">
+      <img *ngIf="job.dop_app_icon" class="doc-icon" [src]="job.dop_app_icon" [alt]="job.dop_app_name || job.app_id || 'job'" />
+      <h2>{{ job.dop_app_name || job.app_id || '-' }}</h2>
+    </div>
+    <div class="muted">
+      {{ job.app_id || '-' }} • {{ job.doc_type_title }} •
+      <ng-container *ngIf="job.job_type === 'chat_message' && job.thread_id !== undefined; else nonChatJobTitle">
+        <a href="#" (click)="jumpToChatFromJob(job); $event.preventDefault()">{{ job.doc_name || '-' }}</a>
+      </ng-container>
+      <ng-template #nonChatJobTitle>
+        <ng-container *ngIf="canOpenDocFromJob(job); else plainJobTitle">
+          <a href="#" (click)="openDocFromJob(job, $event)">{{ job.doc_name || '-' }}</a>
+        </ng-container>
+      </ng-template>
+      <ng-template #plainJobTitle>{{ job.doc_name || '-' }}</ng-template>
+    </div>
+    <div class="muted">Status: {{ jobStatusLabel(job) }}</div>
+    <div class="muted" *ngIf="jobSummaryText(job) as summary">{{ summary }}</div>
+    <div class="job-logs">
+      <div class="job-log" *ngFor="let item of filteredAgentEvents(job.agent_events)">
+        <span class="job-log-line activity">{{ item.text }}</span>
+      </div>
+      <div class="job-log" *ngFor="let log of filteredJobLogs(job.logs)">
+        <!-- <span class="muted">{{ log.timestamp }}</span> -->
+        <span class="job-log-line" [class.stderr]="log.stream === 'stderr'">{{ log.entry }}</span>
+      </div>
+      <div class="muted" *ngIf="(job.logs || []).length === 0 && (job.agent_events || []).length === 0">No logs yet</div>
+      <div class="job-log-spinner-row" *ngIf="job.status === 'running'">
+        <span class="job-log-spinner" aria-hidden="true"></span>
+      </div>
+    </div>
+    <div class="error" *ngIf="job.status === 'failed' && job.failure">{{ job.failure }}</div>
+    <div class="row end">
+      <button *ngIf="canRestartJob(job)" (click)="restartJob(job, $event)" [disabled]="loading">Restart Job</button>
+      <button *ngIf="canCancelJob(job)" (click)="cancelJob(job, $event)" [disabled]="isStoppingJob(job.id)">
+        {{ isStoppingJob(job.id) ? 'Stopping…' : 'Stop Job' }}
+      </button>
+      <button (click)="closeJobDialog()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" *ngIf="showAskPassDialog && currentAskPassRequest as request" (click)="cancelAskPassDialog()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <h2>Authentication Required</h2>
+    <p>{{ request.prompt }}</p>
+    <a
+      class="login-slack-link"
+      href="https://join.slack.com/t/devops-pass-ai/shared_invite/zt-2gyn62v9f-5ORKktUINe43qJx7HtKFcw"
+      target="_blank"
+      rel="noopener noreferrer">
+      Join Slack
+    </a>
+    <div class="form-group">
+      <input
+        [type]="askPassInputType(request)"
+        [(ngModel)]="askPassPassword"
+        [placeholder]="askPassPlaceholder(request)"
+        (keyup.enter)="submitAskPassPassword()"
+        autofocus
+      />
+    </div>
+    <label class="checkbox" *ngIf="isAskPassSaveEnabled(request)">
+      <input type="checkbox" [(ngModel)]="askPassSave" /> {{ askPassSaveLabel(request) }}
+    </label>
+    <div class="row end">
+      <button (click)="cancelAskPassDialog()" [disabled]="loading">Cancel</button>
+      <button (click)="submitAskPassPassword()" [disabled]="loading">Submit</button>
+    </div>
+  </div>
+</div>
+
+<div class="notifications">
+  <div class="notification" *ngFor="let notification of notifications" [class.success]="notification.status === 'success'" [class.failed]="notification.status === 'failed'" (click)="openJobDialog(notification.job)">
+    <img *ngIf="notification.icon" class="doc-icon" [src]="notification.icon" [alt]="notification.appId" />
+    <div class="notification-body">
+      <div>{{ notification.appId }} • {{ notification.title }}</div>
+      <div class="muted">{{ notification.summary }}</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+FROM node:20-bookworm-slim AS ui-builder
+
+WORKDIR /workspace/ui
+
+COPY ui/package*.json ./
+ARG SKIP_UI_BUILD=0
+RUN if [ "$SKIP_UI_BUILD" != "1" ]; then npm ci; fi
+
+COPY ui/ ./
+RUN if [ "$SKIP_UI_BUILD" = "1" ]; then \
+            test -d dist/dop-ui || (echo "ui/dist/dop-ui is missing; build UI assets before image build" && exit 1); \
+        else \
+            npm run build -- --configuration production; \
+        fi
+
+FROM python:3.12-slim
+
+WORKDIR /workspace
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    nginx \
+    openssh-client \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY api/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /tmp/requirements.txt
+
+COPY api/ /workspace/api/
+COPY plugins/ /workspace/plugins/
+COPY --from=ui-builder /workspace/ui/dist/dop-ui/ /usr/share/nginx/html/
+
+COPY deploy/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY deploy/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker-entrypoint-prod.sh /usr/local/bin/docker-entrypoint-prod.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint-prod.sh && \
+    mkdir -p /workspace/.data /workspace/logs
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    FASTAPI_HOST=0.0.0.0 \
+    FASTAPI_PORT=8081 \
+    FASTAPI_RELOAD=false \
+    FASTAPI_WORKERS=2 \
+    DOP_PLUGINS_DIR=/workspace/plugins \
+    DOP_DATA_DIR=/workspace/.data \
+    DOP_LOGS_DIR=/workspace/logs \
+    FIREBASE_PROJECT_ID=devops-pass-ai \
+    NGINX_PORT=8080
+
+EXPOSE 8080
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint-prod.sh"]

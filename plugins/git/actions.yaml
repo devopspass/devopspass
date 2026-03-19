@@ -1,0 +1,6 @@
+git_clone_repo:
+  object_types: git_repo
+  title: Clone
+  description: ''
+  icon: fas fa-folder-plus
+  command: plugins/git/actions/clone_git.py

@@ -1,0 +1,77 @@
+name: Jira
+description: Issue and project tracking integration for Atlassian Jira.
+icon: https://wac-cdn.atlassian.com/assets/img/favicons/atlassian/favicon.png
+doc_types:
+  - jira_issues:
+    title: Jira issues
+    filter_field: key
+    source: jira/docs/jira_issues.py
+    icon: https://wac-cdn.atlassian.com/assets/img/favicons/atlassian/favicon.png
+    actions_view_type: buttons
+    cache_ok: true
+    hidden_fields:
+      - description
+      - comment
+      - worklog
+      - changelog
+  - jira_projects:
+    title: Jira projects
+    filter_field: key
+    source: jira/docs/jira_projects.py
+    icon: https://wac-cdn.atlassian.com/assets/img/favicons/atlassian/favicon.png
+    actions_view_type: buttons
+    cache_ok: true
+settings:
+  jira.url:
+    title: Jira URL
+    description: Jira base URL, e.g. `https://your-company.atlassian.net` or self-hosted URL
+    type: string
+    mandatory: true
+
+  jira.username:
+    title: Jira Username
+    description: Email/username for Jira authentication (required for Cloud mode)
+    type: string
+
+  jira.token:
+    title: Jira Token
+    description: Jira API token / PAT / password
+    type: secret
+    mandatory: true
+
+  jira.auth_mode:
+    title: Auth Mode
+    description: Use `cloud` for Atlassian Cloud or `standalone` for self-hosted Jira
+    type: dropdown
+    default: cloud
+    options:
+      - cloud
+      - standalone
+
+  jira.verify_ssl:
+    title: Verify SSL Certificates
+    description: Disable only for trusted self-hosted environments with custom certificates
+    type: boolean
+    default: true
+
+  jira.jql:
+    title: Jira JQL
+    description: JQL query used to fetch issues
+    type: string
+    default: assignee = currentUser() ORDER BY updated DESC
+agents:
+  - name: jira
+    description: DevOps Assistant agent to work with Jira related requests on {jira.url}.
+    prompt: |
+      You're DevOps assistant agent which is helping user to work with Jira related requests.
+      Use that agent only if user asking to search in Jira.
+    mcp-servers:
+      mcp-atlassian:
+        type: local
+        command: uvx
+        args: ["mcp-atlassian"]
+        env:
+          JIRA_URL: "{jira.url}"
+          JIRA_USERNAME: "{jira.username}"
+          JIRA_API_TOKEN: "{jira.token}"
+          READ_ONLY_MODE: true

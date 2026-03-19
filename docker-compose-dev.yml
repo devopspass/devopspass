@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  api:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dop-api
+    ports:
+      - "10818:10818"
+    environment:
+      - FASTAPI_HOST=0.0.0.0
+      - FASTAPI_PORT=10818
+      - FASTAPI_RELOAD=true
+      - WATCHFILES_FORCE_POLLING=true
+      - WATCHFILES_POLL_DELAY_MS=500
+      - DOP_PLUGINS_DIR=/workspace/plugins
+      - DOP_DATA_DIR=/workspace/.data
+      - DOP_LOGS_DIR=/workspace/logs
+      - FIREBASE_PROJECT_ID=devops-pass-ai
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./api:/workspace/api
+      - ./plugins:/workspace/plugins
+      - ./.data:/workspace/.data
+      - ./logs:/workspace/logs
+      - /Users/aliakseikharyton/DEVEL/dop-workspace/:/workspace/git
+      # - /Users/Aleksey_Hariton1/DEVEL/:/workspace/git
+      - ./docker-compose.yml:/workspace/docker-compose.yml:ro
+      - /Users/aliakseikharyton/.ssh:/root/.ssh:ro
+    command: ["api"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10818/status"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  ui:
+    image: node:20-bookworm
+    platform: linux/amd64
+    container_name: dop-ui
+    working_dir: /workspace/ui
+    ports:
+      - "4201:4200"
+    volumes:
+      - ./ui:/workspace/ui
+      - ui-node-modules:/workspace/ui/node_modules
+    command: ["sh", "-lc", "npm install && npm start"]
+    depends_on:
+      - api
+
+volumes:
+  ui-node-modules:

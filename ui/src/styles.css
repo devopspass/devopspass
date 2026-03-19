@@ -1,0 +1,44 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #1e1e1e;
+  color: #d4d4d4;
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.dialog a,
+.dialog a:visited,
+.dialog a:active,
+.dialog a:focus {
+  color: #3794ff;
+  text-decoration: none;
+}
+
+.dialog a:hover {
+  text-decoration: underline;
+}
+
+.dialog.preview .entry a,
+.dialog.preview .entry a:visited,
+.dialog.preview .entry a:active,
+.dialog.preview .entry a:focus {
+  color: #3794ff;
+  text-decoration: none;
+}
+
+.dialog.preview .entry a:hover {
+  text-decoration: underline;
+}
